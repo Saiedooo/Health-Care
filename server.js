@@ -9,6 +9,9 @@ const globalError = require('./middleware/errorMiddleware');
 const userRoute = require('./routes/userRoute');
 const authRoute = require('./routes/authRoute');
 const adminActivateRoute = require('./routes/adminActivateRoute');
+const departmentRoute = require('./routes/DepartmentRoute');
+const specialtiesRoute = require('./routes/specialtiesRoute');
+const requestRoute = require('./routes/requestRoute');
 
 dotenv.config({ path: '.env' });
 
@@ -25,6 +28,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/activation', adminActivateRoute);
+app.use('/api/v1/department', departmentRoute);
+app.use('/api/v1/specialties', specialtiesRoute);
+app.use('/api/v1/request', requestRoute);
 
 // Db connection
 dbConnection();

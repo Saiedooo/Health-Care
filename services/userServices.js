@@ -81,8 +81,16 @@ exports.getUserbyId = asyncHandler(async (req, res) => {
 
 // Update a user by ID
 exports.updateUserById = asyncHandler(async (req, res) => {
-  const { username, password, role, fullName, phoneNumber, address, isActive } =
-    req.body;
+  const {
+    username,
+    password,
+    role,
+    fullName,
+    phoneNumber,
+    address,
+    isActive,
+    departmentId,
+  } = req.body;
 
   const updatedUser = await User.findByIdAndUpdate(
     req.params.id,
@@ -94,6 +102,7 @@ exports.updateUserById = asyncHandler(async (req, res) => {
       phoneNumber,
       address,
       isActive,
+      departmentId,
     },
     { new: true }
   );

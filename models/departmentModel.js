@@ -9,6 +9,9 @@ const DepartmentSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  image: {
+    type: String,
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -16,6 +19,14 @@ const DepartmentSchema = new mongoose.Schema({
       return this.role === 'nurse';
     },
   },
+
+  specialties: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Specialty',
+      require: [true, 'Should inter some of specialities'],
+    },
+  ],
 });
 
 module.exports = mongoose.model('Department', DepartmentSchema);
