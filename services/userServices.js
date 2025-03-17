@@ -62,7 +62,7 @@ exports.createUser = asyncHandler(async (req, res) => {
 // @admin
 exports.getUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
-  res.status(200).json(users);
+
   if (!users) {
     return next(new ApiError(`No user for this id ${req.params.id}`, 404));
   }
@@ -90,6 +90,7 @@ exports.updateUserById = asyncHandler(async (req, res) => {
     address,
     isActive,
     departmentId,
+    email,
   } = req.body;
 
   const updatedUser = await User.findByIdAndUpdate(
@@ -103,6 +104,7 @@ exports.updateUserById = asyncHandler(async (req, res) => {
       address,
       isActive,
       departmentId,
+      email,
     },
     { new: true }
   );
@@ -116,16 +118,12 @@ exports.updateUserById = asyncHandler(async (req, res) => {
 
 // Delete a user by ID
 exports.deleteUserById = asyncHandler(async (req, res) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) {
-      return next(new ApiError(`No user for this id ${req.params.id}`, 404));
-    }
+  const deletedUser = await User.findByIdAndDelete(req.params.id);
+
+  if (!deletedUser) {
+    return next(new ApiError(`No user for this id ${req.params.id}`, 404));
+
     res.status(200).json({ message: 'User deleted successfully' });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: 'Error deleting user', error: err.message });
   }
 });
 // @desc   Delete user

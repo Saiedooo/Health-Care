@@ -12,18 +12,16 @@ const {
 // Protect all routes
 router.use(authService.protect);
 
-// Routes for users (patients)
-router.use(authService.allowedTo('user', 'admin'));
-router.route('/').post(createRequest);
+// Routes for patients (create request)
+router
+  .route('/')
+  .post(authService.allowedTo('patient', 'admin'), createRequest)
+  .get(authService.allowedTo('admin', 'nurse'), getAllRequests);
 
-// Routes for admins
-router.use(authService.allowedTo('admin'));
-router.route('/').get(getAllRequests);
-
-// Routes for nurses
+// Routes for nurses and admins
 router.use(authService.allowedTo('nurse', 'admin'));
-router.route('/:requestId').put(updateRequestStatus);
-router.route('/:requestId').delete(deleteRequest);
+router.route('/:requestId').put(updateRequestStatus).delete(deleteRequest);
+
 router.route('/nurse/:nurseid').get(getRequestsForNurse);
 
 module.exports = router;
