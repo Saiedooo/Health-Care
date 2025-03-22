@@ -2,10 +2,18 @@
   "name": "home-care-nursing-project",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "echo 'Build completed successfully'",
+    "prod": "set NODE_ENV=production&& node server.js",
+    "lint": "eslint .",
+    "test": "jest",
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
