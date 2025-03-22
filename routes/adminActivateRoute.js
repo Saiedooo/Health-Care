@@ -14,4 +14,5 @@ router.use(allowedTo('admin'));
 router.get('/pendingAccounts', getPendingAccounts);
 
 router.put('/activateAccount/:id', activeAccount);
+
 module.exports = router;
