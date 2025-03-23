@@ -32,16 +32,18 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
 exports.createUser = asyncHandler(async (req, res) => {
   try {
-    const { username, email, password, role, phoneNumber, address } = req.body;
+    const { firstName, lastName, email, password, role, phoneNumber, address } =
+      req.body;
 
-    if (!username || !email) {
+    if (!firstName || !email) {
       return res
         .status(400)
         .json({ message: 'Username and Email are required' });
     }
 
     const newUser = new User({
-      username,
+      firstName,
+      lastName,
       email,
       password,
       role,
@@ -82,7 +84,8 @@ exports.getUserbyId = asyncHandler(async (req, res) => {
 // Update a user by ID
 exports.updateUserById = asyncHandler(async (req, res) => {
   const {
-    username,
+    firstName,
+    lastName,
     password,
     role,
     fullName,
@@ -96,7 +99,8 @@ exports.updateUserById = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     req.params.id,
     {
-      username,
+      firstName,
+      lastName,
       password,
       role,
       fullName,

@@ -4,7 +4,7 @@ const validatorMIddleware = require('../../middleware/validatorMiddleware');
 const User = require('../../models/userModel');
 
 exports.signupValidator = [
-  // check('name')
+  // check('firstName')
   //   .notEmpty()
   //   .withMessage('Must be named')
   //   .isLength({ min: 3 })

@@ -10,7 +10,7 @@ exports.getUserValidator = [
 ];
 
 exports.createUserValidator = [
-  check('username')
+  check('firstName')
     .notEmpty()
     .withMessage('Must be named')
     .isLength({ min: 3 })
@@ -55,7 +55,7 @@ exports.createUserValidator = [
 
 exports.updateUserValidator = [
   check('id').isMongoId().withMessage('Invalid User id'),
-  body('name').optional(),
+  body('firstName').optional(),
 
   check('email')
     .optional()
@@ -125,7 +125,7 @@ exports.deleteUserValidator = [
 
 exports.updateUserLoggedValidator = [
   check('id').isMongoId().withMessage('Invalid User id'),
-  body('name').optional(),
+  body('firstName').optional(),
   check('email')
     .notEmpty()
     .withMessage('email required')
