@@ -18,8 +18,17 @@ dotenv.config({ path: '.env' });
 
 //middlewares
 app.use(express.json());
-app.use(cors());
-app.options('*', cors());
+app.use(
+  cors({
+    origin: 'http://localhost:5122/', // Allow only this origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    credentials: true, // Allow credentials (cookies, tokens)
+  })
+);
+
+app.options('*', cors()); // Handle preflight requests for all routes
+
 // Development Mode
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
