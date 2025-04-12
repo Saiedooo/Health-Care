@@ -16,7 +16,6 @@ const {
   updateLoggedUserData,
   updateLoggedUserPassword,
   deleteLoggedUserData,
-  
 } = require('../services/userServices');
 
 const {
@@ -43,15 +42,17 @@ router.put(
 router.delete('/deleteMe', deleteLoggedUserData);
 
 router.use(authService.allowedTo('admin'));
-router.route('/').get(getUsers);
+router
+  .route('/')
+  .get(getUsers)
+  .post(resizeImage, uploadUserImages, createUserValidator, createUser);
 // .post(uploadUserImage, resizeImage, createUserValidator, createUser);
- .post(uploadUserImages,createUserValidator, createUser);
 
 router
   .route('/:id')
   .get(getUserValidator, getUserbyId)
   // .put(uploadUserImage, resizeImage, updateUserValidator, updateUserById)
-  .put(uploadUserImages, updateUserValidator, updateUserById)
+  .put(resizeImage, uploadUserImages, updateUserValidator, updateUserById)
   .delete(deleteUserValidator, deleteUserById);
 
 module.exports = router;
