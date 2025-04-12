@@ -23,7 +23,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
       .toFile(`uploads/users/${filename}`);
-    req.body.proFileImg = filename;
+    req.body.personalPhoto = filename;
   }
   next();
 });

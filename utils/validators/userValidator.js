@@ -47,12 +47,12 @@ exports.createUserValidator = [
 
   check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
 
-  check('phone')
+  check('phoneNumber')
     .notEmpty()
     .isMobilePhone(['ar-EG', 'ar-SA'])
     .withMessage('invalid phone number only accepted egy and saudi number'),
 
-  check('proFileImg').notEmpty().withMessage('Personal Image is Required '),
+  check('personalPhoto').notEmpty().withMessage('Personal Image is Required '),
   check('role').optional(),
 
   validatorMIddleware,
@@ -74,12 +74,12 @@ exports.updateUserValidator = [
       })
     ),
 
-  check('phone')
+  check('phoneNumber')
     .optional()
     .isMobilePhone(['ar-EG'])
     .withMessage('invalid phone number only accepted egy number'),
 
-  check('proFileImg').optional(),
+  check('personalPhoto').optional(),
   check('role').optional(),
 
   // check('password').isLength({min:6}).withMessage('password must be over 6 charecter')

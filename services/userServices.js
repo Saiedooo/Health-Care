@@ -22,7 +22,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
       .toFile(`uploads/users/${filename}`);
-    req.body.proFileImg = filename;
+    req.body.personalPhoto = filename;
   }
   next();
 });
@@ -32,24 +32,25 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
 exports.createUser = asyncHandler(async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role, phoneNumber, address } =
-      req.body;
+    //   const { firstName, lastName, email, password, role, phoneNumber, address } =
+    //     req.body;
 
-    if (!firstName || !email) {
-      return res
-        .status(400)
-        .json({ message: 'Username and Email are required' });
-    }
+    //   if (!firstName || !email) {
+    //     return res
+    //       .status(400)
+    //       .json({ message: 'Username and Email are required' });
+    //   }
 
-    const newUser = new User({
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      phoneNumber,
-      address,
-    });
+    const newUser = new User(
+      // firstName,
+      // lastName,
+      // email,
+      // password,
+      // role,
+      // phoneNumber,
+      // address,
+      req.body
+    );
 
     await newUser.save();
     res.status(201).json(newUser);
