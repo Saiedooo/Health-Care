@@ -14,7 +14,16 @@ const User = require('../models/userModel');
 // @route Post /api/v1/auth/signup
 // @acces public
 
-exports.signup = asyncHandler(async (req, res, next) => {
+// exports.signup = asyncHandler(async (req, res, next) => {
+//   // create User
+//   const user = await User.create(req.body);
+//   // generate Token
+//   const token = createToken(user._id);
+
+//   res.status(201).json({ data: user, token });
+// });
+
+exports.signupNurse = asyncHandler(async (req, res, next) => {
   // create User
   const user = await User.create(req.body);
   // generate Token
@@ -23,6 +32,14 @@ exports.signup = asyncHandler(async (req, res, next) => {
   res.status(201).json({ data: user, token });
 });
 
+exports.signupPatient = asyncHandler(async (req, res, next) => {
+  // create User
+  const user = await User.create(req.body);
+  // generate Token
+  const token = createToken(user._id);
+
+  res.status(201).json({ data: user, token });
+});
 // @desc Login
 // @route Post /api/v1/auth/login
 // @acces public

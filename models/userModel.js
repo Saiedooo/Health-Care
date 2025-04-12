@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    phone: String,
-    proFileImg: String,
+    phoneNumber: String, //phone
+    personalPhoto: String, // proFileImg
     password: {
       type: String,
       required: [true, 'Password required'],
@@ -34,19 +34,22 @@ const userSchema = new mongoose.Schema(
       enum: ['patient', 'nurses', 'admin'],
       default: 'patient',
     },
-    nationalId: {
+    idPhoto: {
+      // nationalId
       type: String,
       required: function () {
         return this.role === 'patient' || this.role === 'nurse';
       },
     },
-    nursingLicense: {
+    businessCardPhoto: {
+      //nursingLicense
       type: String,
       required: function () {
         return this.role === 'nurse';
       },
     },
     departmentId: {
+      //departmentId
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Department',
       required: function () {
