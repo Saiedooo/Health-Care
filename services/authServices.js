@@ -10,6 +10,23 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/userModel');
 
+// upload Single Image
+exports.uploadUserImage = uploadSingleImage('proFileImg');
+
+// upload imge processing
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+  if (req.file) {
+    await sharp(req.file.buffer)
+      .resize(600, 600)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(`uploads/users/${filename}`);
+    req.body.proFileImg = filename;
+  }
+  next();
+});
+
 // @desc Signup
 // @route Post /api/v1/auth/signup
 // @acces public

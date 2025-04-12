@@ -15,11 +15,25 @@ const {
   forgotPassword,
   verifyPasswordResetCode,
   resetPassword,
+  resizeImage,
+  uploadUserImage,
 } = require('../services/authServices');
 
 // router.post('/signup', signupValidator, signup); //+ validator
-router.post('/patientSignup', signupValidator, patientSignup); //+ validator
-router.post('/nurseSignup', signupValidator, nurseSignup); //+ validator
+router.post(
+  '/patientSignup',
+  uploadUserImage,
+  resizeImage,
+  signupValidator,
+  patientSignup
+); //+ validator
+router.post(
+  '/nurseSignup',
+  uploadUserImage,
+  resizeImage,
+  signupValidator,
+  nurseSignup
+); //+ validator
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.post('/verifyResetCode', verifyPasswordResetCode);

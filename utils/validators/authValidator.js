@@ -46,7 +46,7 @@ exports.signupValidator = [
     .isMobilePhone(['ar-EG'])
     .withMessage('invalid phone number only accepted egy number'),
 
-  check('personalPhoto').notEmpty().withMessage('Personal Image is Required '),
+  check('personalPhoto').notEmpty().withMessage('Personal photo is Required '),
   check('role').optional(),
 
   validatorMIddleware,
