@@ -26,6 +26,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   }
   next();
 });
+
 // @desc  create user
 // @route put /api/v1/users
 // private

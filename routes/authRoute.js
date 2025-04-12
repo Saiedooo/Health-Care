@@ -2,6 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
+const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
+
 const {
   signupValidator,
   loginValidator,
@@ -20,20 +22,24 @@ const {
 } = require('../services/authServices');
 
 // router.post('/signup', signupValidator, signup); //+ validator
-router.post(
-  '/patientSignup',
-  uploadUserImage,
-  resizeImage,
-  signupValidator,
-  patientSignup
-); //+ validator
-router.post(
-  '/nurseSignup',
-  uploadUserImage,
-  resizeImage,
-  signupValidator,
-  nurseSignup
-); //+ validator
+// router.post(
+//   '/patientSignup',
+//   uploadUserImage,
+//   resizeImage,
+//   signupValidator,
+//   patientSignup
+// ); //+ validator
+router.post('/patientSignup', uploadUserImages, signupValidator, patientSignup); //+ validator
+// router.post(
+//   '/nurseSignup',
+//   uploadUserImage,
+//   resizeImage,
+//   signupValidator,
+//   nurseSignup
+// ); //+ validator
+
+router.post('/nurseSignup', uploadUserImages, signupValidator, nurseSignup);
+
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.post('/verifyResetCode', verifyPasswordResetCode);

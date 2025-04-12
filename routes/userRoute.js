@@ -2,6 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
+const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
+
 const {
   createUser,
   uploadUserImage,
@@ -14,6 +16,7 @@ const {
   updateLoggedUserData,
   updateLoggedUserPassword,
   deleteLoggedUserData,
+  
 } = require('../services/userServices');
 
 const {
@@ -40,15 +43,15 @@ router.put(
 router.delete('/deleteMe', deleteLoggedUserData);
 
 router.use(authService.allowedTo('admin'));
-router
-  .route('/')
-  .get(getUsers)
-  .post(uploadUserImage, resizeImage, createUserValidator, createUser);
+router.route('/').get(getUsers);
+// .post(uploadUserImage, resizeImage, createUserValidator, createUser);
+ .post(uploadUserImages,createUserValidator, createUser);
 
 router
   .route('/:id')
   .get(getUserValidator, getUserbyId)
-  .put(uploadUserImage, resizeImage, updateUserValidator, updateUserById)
+  // .put(uploadUserImage, resizeImage, updateUserValidator, updateUserById)
+  .put(uploadUserImages, updateUserValidator, updateUserById)
   .delete(deleteUserValidator, deleteUserById);
 
 module.exports = router;

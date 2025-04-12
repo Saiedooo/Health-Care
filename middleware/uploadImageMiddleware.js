@@ -36,3 +36,10 @@ exports.uploadSingleImage = (fieldName) => multerOptions().single(fieldName);
 
 exports.uploadMixOfImages = (arrayOfFields) =>
   multerOptions().fields(arrayOfFields);
+
+exports.uploadUserImages = () =>
+  multerOptions().fields([
+    { name: 'personalPhoto', maxCount: 1 },
+    { name: 'idPhoto', maxCount: 1 },
+    { name: 'businessCardPhoto', maxCount: 1 },
+  ]);
