@@ -41,12 +41,12 @@ exports.signupValidator = [
 
   check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
 
-  check('phone')
+  check('phoneNumber')
     .notEmpty()
     .isMobilePhone(['ar-EG'])
     .withMessage('invalid phone number only accepted egy number'),
 
-  check('proFileImg').notEmpty().withMessage('Personal Image is Required '),
+  check('personalPhoto').notEmpty().withMessage('Personal Image is Required '),
   check('role').optional(),
 
   validatorMIddleware,
