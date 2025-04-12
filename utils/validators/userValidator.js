@@ -12,12 +12,17 @@ exports.getUserValidator = [
 exports.createUserValidator = [
   check('firstName')
     .notEmpty()
-    .withMessage('Must be named')
+    .withMessage('Must be Write your Firstname')
+    .isLength({ min: 3 })
+    .withMessage('too short'),
+  check('lastName')
+    .notEmpty()
+    .withMessage('Must be Write your LastName')
     .isLength({ min: 3 })
     .withMessage('too short'),
   check('email')
     .notEmpty()
-    .withMessage('email required')
+    .withMessage('Email Is required')
     .isEmail()
     .withMessage('invalid email address')
     .custom((val) =>
@@ -43,11 +48,11 @@ exports.createUserValidator = [
   check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
 
   check('phone')
-    .optional()
+    .notEmpty()
     .isMobilePhone(['ar-EG', 'ar-SA'])
     .withMessage('invalid phone number only accepted egy and saudi number'),
 
-  check('proFileImg').optional(),
+  check('proFileImg').notEmpty().withMessage('Personal Image is Required '),
   check('role').optional(),
 
   validatorMIddleware,

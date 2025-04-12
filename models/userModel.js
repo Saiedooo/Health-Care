@@ -34,12 +34,12 @@ const userSchema = new mongoose.Schema(
       enum: ['patient', 'nurses', 'admin'],
       default: 'patient',
     },
-    // nationalId: {
-    //   type: String,
-    //   required: function () {
-    //     return this.role === 'patient' || this.role === 'nurse';
-    //   },
-    // },
+    nationalId: {
+      type: String,
+      required: function () {
+        return this.role === 'patient' || this.role === 'nurse';
+      },
+    },
     nursingLicense: {
       type: String,
       required: function () {

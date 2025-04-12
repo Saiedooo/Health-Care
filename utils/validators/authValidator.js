@@ -4,16 +4,21 @@ const validatorMIddleware = require('../../middleware/validatorMiddleware');
 const User = require('../../models/userModel');
 
 exports.signupValidator = [
-  // check('firstName')
-  //   .notEmpty()
-  //   .withMessage('Must be named')
-  //   .isLength({ min: 3 })
-  //   .withMessage('too short'),
+  check('firstName')
+    .notEmpty()
+    .withMessage('Must be Write your Firstname')
+    .isLength({ min: 3 })
+    .withMessage('too short'),
+  check('lastName')
+    .notEmpty()
+    .withMessage('Must be Write your LastName')
+    .isLength({ min: 3 })
+    .withMessage('too short'),
   check('email')
     .notEmpty()
-    .withMessage('email required')
+    .withMessage('Email Is required')
     .isEmail()
-    .withMessage('invalid email adress')
+    .withMessage('invalid email address')
     .custom((val) =>
       User.findOne({ email: val }).then((user) => {
         if (user) {
@@ -21,23 +26,28 @@ exports.signupValidator = [
         }
       })
     ),
+  check('address').notEmpty().withMessage('Address is Required'),
+  check('password')
+    .notEmpty()
+    .withMessage('password Required')
+    .isLength({ min: 6 })
+    .withMessage('password must be at 6 charecters')
+    .custom((password, { req }) => {
+      if (password !== req.body.passwordConfirm) {
+        throw new Error('password Confimation InCorrect');
+      }
+      return true;
+    }),
 
-  // check('password')
-  //   .notEmpty()
-  //   .withMessage('password Required')
-  //   .isLength({ min: 6 })
-  //   .withMessage('password must be at 6 charecters')
-  //   .custom((password, { req }) => {
-  //     if (password !== req.body.passwordConfirm) {
-  //       throw new Error('password Confimation InCorrect');
-  //     }
-  //     return true;
-  //   }),
+  check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
 
-  // check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
+  check('phone')
+    .notEmpty()
+    .isMobilePhone(['ar-EG'])
+    .withMessage('invalid phone number only accepted egy number'),
 
-  // check('proFileImg').optional(),
-  // check('role').optional(),
+  check('proFileImg').notEmpty().withMessage('Personal Image is Required '),
+  check('role').optional(),
 
   validatorMIddleware,
 ];
