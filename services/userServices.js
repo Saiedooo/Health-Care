@@ -11,7 +11,7 @@ const ApiError = require('../utils/apiError');
 const User = require('../models/userModel');
 
 // upload Single Image
-exports.uploadUserImage = uploadSingleImage('proFileImg');
+exports.uploadUserImage = uploadSingleImage('personalPhoto');
 
 // upload imge processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {

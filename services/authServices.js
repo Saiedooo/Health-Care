@@ -7,11 +7,12 @@ const sendEmail = require('../utils/sendEmail');
 const createToken = require('../utils/createToken');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
 
 const User = require('../models/userModel');
 
 // upload Single Image
-exports.uploadUserImage = uploadSingleImage('proFileImg');
+exports.uploadUserImage = uploadSingleImage('personalPhoto');
 
 // upload imge processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {
