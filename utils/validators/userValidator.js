@@ -39,13 +39,13 @@ exports.createUserValidator = [
     .isLength({ min: 6 })
     .withMessage('password must be at 6 charecters')
     .custom((password, { req }) => {
-      if (password !== req.body.passwordConfirm) {
+      if (password !== req.body.confirmPassword) {
         throw new Error('password Confimation InCorrect');
       }
       return true;
     }),
 
-  check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
+  check('confirmPassword').notEmpty().withMessage('password Confirm Required'),
 
   check('phoneNumber')
     .notEmpty()
@@ -92,7 +92,7 @@ exports.changeUserPasswordValidator = [
     .notEmpty()
     .withMessage('current Password is required'),
 
-  check('passwordConfirm')
+  check('confirmPassword')
     .notEmpty()
     .withMessage('You Must Enter the password Confirm'),
 
@@ -114,7 +114,7 @@ exports.changeUserPasswordValidator = [
         throw new Error('Incorrect Current Password');
       }
       // verify confirmPassword
-      if (val !== req.body.passwordConfirm) {
+      if (val !== req.body.confirmPassword) {
         throw new Error('password Confimation InCorrect');
       }
 

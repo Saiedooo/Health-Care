@@ -33,13 +33,13 @@ exports.signupValidator = [
     .isLength({ min: 6 })
     .withMessage('password must be at 6 charecters')
     .custom((password, { req }) => {
-      if (password !== req.body.passwordConfirm) {
+      if (password !== req.body.confirmPassword) {
         throw new Error('password Confimation InCorrect');
       }
       return true;
     }),
 
-  check('passwordConfirm').notEmpty().withMessage('password Confirm Required'),
+  check('confirmPassword').notEmpty().withMessage('password Confirm Required'),
 
   check('phoneNumber')
     .notEmpty()
