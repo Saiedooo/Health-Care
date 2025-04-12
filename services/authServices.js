@@ -23,7 +23,7 @@ const User = require('../models/userModel');
 //   res.status(201).json({ data: user, token });
 // });
 
-exports.signupNurse = asyncHandler(async (req, res, next) => {
+exports.nurseSignup = asyncHandler(async (req, res, next) => {
   // create User
   const user = await User.create(req.body);
   // generate Token
@@ -32,7 +32,7 @@ exports.signupNurse = asyncHandler(async (req, res, next) => {
   res.status(201).json({ data: user, token });
 });
 
-exports.signupPatient = asyncHandler(async (req, res, next) => {
+exports.patientSignup = asyncHandler(async (req, res, next) => {
   // create User
   const user = await User.create(req.body);
   // generate Token

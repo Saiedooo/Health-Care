@@ -9,8 +9,8 @@ const {
 
 const {
   // signup,
-  signupPatient,
-  signupNurse,
+  nurseSignup,
+  patientSignup,
   login,
   forgotPassword,
   verifyPasswordResetCode,
@@ -18,8 +18,8 @@ const {
 } = require('../services/authServices');
 
 // router.post('/signup', signupValidator, signup); //+ validator
-router.post('/signupPatient', signupValidator, signupPatient); //+ validator
-router.post('/signupNurse', signupValidator, signupNurse); //+ validator
+router.post('/patientSignup', signupValidator, patientSignup); //+ validator
+router.post('/nurseSignup', signupValidator, nurseSignup); //+ validator
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.post('/verifyResetCode', verifyPasswordResetCode);
