@@ -9,6 +9,8 @@ const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 const ApiError = require('../utils/apiError');
 const User = require('../models/userModel');
 
+console.log(uuidv4());
+
 exports.resizeImage = async (req, res, next) => {
   try {
     if (!req.files) return next();
