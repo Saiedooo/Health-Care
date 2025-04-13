@@ -3,76 +3,191 @@ require('dotenv').config();
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/apiError');
 const sendEmail = require('../utils/sendEmail');
+const multer = require('multer');
+const { put } = require('@vercel/blob');
 const sharp = require('sharp');
 const createToken = require('../utils/createToken');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const { uploadSingleImage } = require('../middlewares/uploadImageMiddleware');
+const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 
 const User = require('../models/userModel');
 
-console.log(uuidv4());
+// exports.resizeImage = async (req, res, next) => {
+//   try {
+//     if (!req.files) return next();
 
-exports.resizeImage = async (req, res, next) => {
-  try {
-    if (!req.files) return next();
+//     // 1) Personal photo
+//     if (req.files.personalPhoto) {
+//       const filename = `user-${uuidv4()}-${Date.now()}-personal.jpeg`;
+//       await sharp(req.files.personalPhoto[0].buffer)
+//         .resize(500, 500)
+//         .toFormat('jpeg')
+//         .jpeg({ quality: 90 })
+//         .toFile(`uploads/users/${filename}`);
+//       req.body.personalPhoto = filename;
+//     }
 
-    // 1) Personal photo
-    if (req.files.personalPhoto) {
-      const filename = `user-${uuidv4()}-${Date.now()}-personal.jpeg`;
-      await sharp(req.files.personalPhoto[0].buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/users/${filename}`);
-      req.body.personalPhoto = filename;
-    }
+//     // 2) ID photo
+//     if (req.files.idPhoto) {
+//       const filename = `user-${uuidv4()}-${Date.now()}-id.jpeg`;
+//       await sharp(req.files.idPhoto[0].buffer)
+//         .resize(500, 500)
+//         .toFormat('jpeg')
+//         .jpeg({ quality: 90 })
+//         .toFile(`uploads/users/${filename}`);
+//       req.body.idPhoto = filename;
+//     }
 
-    // 2) ID photo
-    if (req.files.idPhoto) {
-      const filename = `user-${uuidv4()}-${Date.now()}-id.jpeg`;
-      await sharp(req.files.idPhoto[0].buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/users/${filename}`);
-      req.body.idPhoto = filename;
-    }
+//     // 3) Business card photo (for nurses)
+//     if (req.files.businessCardPhoto) {
+//       const filename = `user-${uuidv4()}-${Date.now()}-business-card.jpeg`;
+//       await sharp(req.files.businessCardPhoto[0].buffer)
+//         .resize(500, 500)
+//         .toFormat('jpeg')
+//         .jpeg({ quality: 90 })
+//         .toFile(`uploads/users/${filename}`);
+//       req.body.businessCardPhoto = filename;
+//     }
 
-    // 3) Business card photo (for nurses)
-    if (req.files.businessCardPhoto) {
-      const filename = `user-${uuidv4()}-${Date.now()}-business-card.jpeg`;
-      await sharp(req.files.businessCardPhoto[0].buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/users/${filename}`);
-      req.body.businessCardPhoto = filename;
-    }
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
-    next();
-  } catch (err) {
-    next(err);
-  }
-};
+// const sharp = require('sharp');
+// const { v4: uuidv4 } = require('uuid');
+// const ApiError = require('../utils/apiError');
+
+// Configure Multer with memory storage
+// const upload = multer({
+//   storage: multer.memoryStorage(),
+//   fileFilter: (req, file, cb) => {
+//     if (file.mimetype.startsWith('image')) {
+//       cb(null, true);
+//     } else {
+//       cb(new ApiError('Only image files are allowed!', 400), false);
+//     }
+//   },
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+// });
+
+// // Generic image processing and upload function
+// const processAndUploadImage = async (file, folder = 'users') => {
+//   try {
+//     // Generate unique filename
+//     const ext = file.mimetype.split('/')[1];
+//     const filename = `${folder}/${uuidv4()}-${Date.now()}.${ext}`;
+
+//     // Process image with Sharp
+//     const processedBuffer = await sharp(file.buffer)
+//       .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+//       .toFormat('jpeg')
+//       .jpeg({
+//         quality: 80,
+//         mozjpeg: true,
+//       })
+//       .toBuffer();
+
+//     // Upload to Vercel Blob
+//     const { url } = await put(filename, processedBuffer, {
+//       access: 'public',
+//       contentType: `image/jpeg`,
+//     });
+
+//     return url;
+//   } catch (error) {
+//     throw new ApiError(`Image processing failed: ${error.message}`, 500);
+//   }
+// };
+
+// // Single image upload middleware
+// exports.uploadSingleImage = (fieldName) => {
+//   return (req, res, next) => {
+//     upload.single(fieldName)(req, res, async (err) => {
+//       try {
+//         if (err) throw new ApiError(err.message, 400);
+//         if (!req.file) throw new ApiError(`No ${fieldName} uploaded`, 400);
+
+//         req.body[fieldName] = await processAndUploadImage(req.file);
+//         next();
+//       } catch (error) {
+//         next(error);
+//       }
+//     });
+//   };
+// };
+
+// // Multiple images upload middleware
+// exports.uploadMixOfImages = (fields) => {
+//   return (req, res, next) => {
+//     upload.fields(fields)(req, res, async (err) => {
+//       try {
+//         if (err) throw new ApiError(err.message, 400);
+//         if (!req.files) throw new ApiError('No files uploaded', 400);
+
+//         await Promise.all(
+//           Object.entries(req.files).map(async ([fieldName, files]) => {
+//             req.body[fieldName] = await processAndUploadImage(files[0]);
+//           })
+//         );
+
+//         next();
+//       } catch (error) {
+//         next(error);
+//       }
+//     });
+//   };
+// };
+
+// // Specialized user images upload
+// exports.uploadUserImages = () => {
+//   return exports.uploadMixOfImages([
+//     { name: 'personalPhoto', maxCount: 1 },
+//     { name: 'idPhoto', maxCount: 1 },
+//     { name: 'businessCardPhoto', maxCount: 1 },
+//   ]);
+// };
 
 // // upload Single Image
 // exports.uploadUserImage = uploadSingleImage('personalPhoto');
 
 // // upload imge processing
-// exports.resizeImage = asyncHandler(async (req, res, next) => {
-//   const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-//   if (req.file) {
-//     await sharp(req.file.buffer)
-//       .resize(600, 600)
-//       .toFormat('jpeg')
-//       .jpeg({ quality: 90 })
-//       .toFile(`uploads/users/${filename}`);
-//     req.body.personalPhoto = filename;
-//   }
-//   next();
-// });
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  if (!req.files) return next();
+
+  // Handle multiple images
+  if (req.files.personalPhoto) {
+    await sharp(req.files.personalPhoto[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    req.body.personalPhoto = req.files.personalPhoto[0].url;
+  }
+
+  if (req.files.idPhoto) {
+    await sharp(req.files.idPhoto[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    req.body.idPhoto = req.files.idPhoto[0].url;
+  }
+
+  if (req.files.businessCardPhoto) {
+    await sharp(req.files.businessCardPhoto[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    req.body.businessCardPhoto = req.files.businessCardPhoto[0].url;
+  }
+
+  next();
+});
 
 // @desc Signup
 // @route Post /api/v1/auth/signup
