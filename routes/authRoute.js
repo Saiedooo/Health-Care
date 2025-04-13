@@ -32,6 +32,7 @@ const {
 router.post(
   '/patientSignup',
   uploadUserImages(),
+  resizeImage,
   signupValidator,
   patientSignup
 ); //+ validator
@@ -43,7 +44,13 @@ router.post(
 //   nurseSignup
 // ); //+ validator
 
-router.post('/nurseSignup', uploadUserImages(), signupValidator, nurseSignup);
+router.post(
+  '/nurseSignup',
+  uploadUserImages(),
+  resizeImage,
+  signupValidator,
+  nurseSignup
+);
 
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);

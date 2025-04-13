@@ -26,6 +26,14 @@ exports.signupValidator = [
         }
       })
     ),
+  check('idPhoto')
+    .if(
+      (value, { req }) =>
+        req.body.role === 'patient' || req.body.role === 'nurse'
+    )
+    .notEmpty()
+    .withMessage('National ID photo is required'),
+
   check('address').notEmpty().withMessage('Address is Required'),
   check('password')
     .notEmpty()
@@ -39,7 +47,7 @@ exports.signupValidator = [
       return true;
     }),
 
-  check('confirmPassword').notEmpty().withMessage('password Confirm Required'),
+  check('confirmPassword').notEmpty().withMessage('confirm Password Required'),
 
   check('phoneNumber')
     .notEmpty()
