@@ -29,7 +29,12 @@ const {
 //   signupValidator,
 //   patientSignup
 // ); //+ validator
-router.post('/patientSignup', uploadUserImages, signupValidator, patientSignup); //+ validator
+router.post(
+  '/patientSignup',
+  uploadUserImages(),
+  signupValidator,
+  patientSignup
+); //+ validator
 // router.post(
 //   '/nurseSignup',
 //   uploadUserImage,
@@ -38,7 +43,7 @@ router.post('/patientSignup', uploadUserImages, signupValidator, patientSignup);
 //   nurseSignup
 // ); //+ validator
 
-router.post('/nurseSignup', uploadUserImages, signupValidator, nurseSignup);
+router.post('/nurseSignup', uploadUserImages(), signupValidator, nurseSignup);
 
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
