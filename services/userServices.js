@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Ensure this line is present
 const sharp = require('sharp');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -7,25 +7,7 @@ const createToken = require('../utils/createToken');
 
 const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 const ApiError = require('../utils/apiError');
-
 const User = require('../models/userModel');
-
-// upload Single Image
-// exports.uploadUserImage = uploadSingleImage('personalPhoto');
-
-// upload imge processing
-// exports.resizeImage = asyncHandler(async (req, res, next) => {
-//   const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-//   if (req.file) {
-//     await sharp(req.file.buffer)
-//       .resize(600, 600)
-//       .toFormat('jpeg')
-//       .jpeg({ quality: 90 })
-//       .toFile(`uploads/users/${filename}`);
-//     req.body.personalPhoto = filename;
-//   }
-//   next();
-// });
 
 exports.resizeImage = async (req, res, next) => {
   try {
@@ -69,6 +51,22 @@ exports.resizeImage = async (req, res, next) => {
     next(err);
   }
 };
+// upload Single Image
+// exports.uploadUserImage = uploadSingleImage('personalPhoto');
+
+// upload imge processing
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+//   if (req.file) {
+//     await sharp(req.file.buffer)
+//       .resize(600, 600)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toFile(`uploads/users/${filename}`);
+//     req.body.personalPhoto = filename;
+//   }
+//   next();
+// });
 
 // @desc  create user
 // @route put /api/v1/users
