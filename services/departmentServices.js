@@ -1,40 +1,33 @@
 const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
-
-const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
+const { v4: uuidv4 } = require('uuid');
+const Department = require('../models/departmentModel');
 const ApiError = require('../utils/apiError');
 
-const Department = require('../models/departmentModel');
-
-// upload Single Image
-exports.uploadDepartmentImage = uploadSingleImage('proFileImg');
-
-// upload imge processing
+// Image processing middleware
 exports.resizeImage = asyncHandler(async (req, res, next) => {
-  const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-  if (req.file) {
-    await sharp(req.file.buffer)
+  if (!req.files) return next();
+
+  if (req.files.personalPhoto) {
+    await sharp(req.files.personalPhoto[0].buffer)
       .resize(600, 600)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
-      .toFile(`uploads/users/${filename}`);
-    req.body.proFileImg = filename;
+      .toBuffer();
+
+    req.body.image = req.files.personalPhoto[0].url;
   }
+
   next();
 });
 
-// @desc  create user
-// @route put /api/v1/users
-// private
-
+// Create department handler
 exports.createDepartment = asyncHandler(async (req, res) => {
-  const { name, description, image, specialties } = req.body;
-
-  const newDepartment = new Department(req.body);
-
-  await newDepartment.save();
-  res.status(201).json(newDepartment);
+  const department = await Department.create(req.body);
+  res.status(201).json({
+    status: 'success',
+    data: department,
+  });
 });
 
 // Get all users

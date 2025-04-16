@@ -1,10 +1,10 @@
 const express = require('express');
+const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
 
 const router = express.Router();
 
 const {
   createDepartment,
-  uploadDepartmentImage,
   resizeImage,
   deleteDepartmentById,
   updateDepartmentById,
@@ -20,12 +20,12 @@ router.use(authService.allowedTo('admin'));
 router
   .route('/')
   .get(getDepartments)
-  .post(uploadDepartmentImage, resizeImage, createDepartment);
+  .post(uploadUserImages(), resizeImage, createDepartment);
 
 router
   .route('/:id')
   .get(getDepartmentById)
-  .put(uploadDepartmentImage, resizeImage, updateDepartmentById)
+  .put(uploadUserImages(), resizeImage, updateDepartmentById)
   .delete(deleteDepartmentById);
 
 module.exports = router;

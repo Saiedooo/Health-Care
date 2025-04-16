@@ -79,70 +79,151 @@
 
 // export default router;
 
+// const multer = require('multer');
+// const { put } = require('@vercel/blob');
+// const sharp = require('sharp');
+// const ApiError = require('../utils/apiError');
+
+// const upload = multer({ storage: multer.memoryStorage() });
+
+// const processAndUploadImage = async (file, folder = 'users') => {
+//   try {
+//     // Process image with Sharp
+//     const processedBuffer = await sharp(file.buffer)
+//       .resize(800, 600, { fit: 'inside', withoutEnlargement: true })
+//       .jpeg({ quality: 80 })
+//       .toBuffer();
+
+//     // Upload to Vercel Blob
+//     const { url } = await put(
+//       `${folder}/${Date.now()}-${file.originalname}`,
+//       processedBuffer,
+//       { access: 'public' }
+//     );
+
+//     return url;
+//   } catch (error) {
+//     throw new ApiError(`Error processing image: ${error.message}`, 400);
+//   }
+// };
+
+// exports.uploadSingleImage = (fieldName) => {
+//   return async (req, res, next) => {
+//     upload.single(fieldName)(req, res, async (err) => {
+//       if (err) {
+//         return next(new ApiError(err.message, 400));
+//       }
+
+//       if (!req.file) {
+//         return next(new ApiError(`Please upload an image`, 400));
+//       }
+
+//       try {
+//         const imageUrl = await processAndUploadImage(req.file);
+//         req.body[fieldName] = imageUrl;
+//         next();
+//       } catch (error) {
+//         next(error);
+//       }
+//     });
+//   };
+// };
+
+// exports.uploadMixOfImages = (arrayOfFields) => {
+//   return async (req, res, next) => {
+//     upload.fields(arrayOfFields)(req, res, async (err) => {
+//       if (err) {
+//         return next(new ApiError(err.message, 400));
+//       }
+
+//       try {
+//         const uploadPromises = Object.keys(req.files).map(async (fieldName) => {
+//           const imageUrl = await processAndUploadImage(req.files[fieldName][0]);
+//           req.body[fieldName] = imageUrl;
+//         });
+
+//         await Promise.all(uploadPromises);
+//         next();
+//       } catch (error) {
+//         next(error);
+//       }
+//     });
+//   };
+// };
+
+// exports.uploadUserImages = () => {
+//   const fields = [
+//     { name: 'personalPhoto', maxCount: 1 },
+//     { name: 'idPhoto', maxCount: 1 },
+//     { name: 'businessCardPhoto', maxCount: 1 },
+//   ];
+
+//   return exports.uploadMixOfImages(fields);
+// };
+
 const multer = require('multer');
 const { put } = require('@vercel/blob');
 const sharp = require('sharp');
 const ApiError = require('../utils/apiError');
 
-const upload = multer({ storage: multer.memoryStorage() });
+// Configure Multer with safety limits
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    allowedTypes.includes(file.mimetype)
+      ? cb(null, true)
+      : cb(new ApiError('Invalid file type (JPEG/PNG only)', 400), false);
+  },
+});
 
 const processAndUploadImage = async (file, folder = 'users') => {
   try {
-    // Process image with Sharp
+    // Validate file existence
+    if (!file?.buffer) throw new Error('No file data received');
+
+    // Process image
     const processedBuffer = await sharp(file.buffer)
       .resize(800, 600, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 80 })
+      .toFormat('jpeg', { quality: 80 })
       .toBuffer();
 
-    // Upload to Vercel Blob
-    const { url } = await put(
+    // Upload to blob storage
+    return await put(
       `${folder}/${Date.now()}-${file.originalname}`,
       processedBuffer,
       { access: 'public' }
-    );
-
-    return url;
+    ).then((res) => res.url);
   } catch (error) {
-    throw new ApiError(`Error processing image: ${error.message}`, 400);
+    throw new ApiError(`Image processing failed: ${error.message}`, 400);
   }
 };
 
-exports.uploadSingleImage = (fieldName) => {
-  return async (req, res, next) => {
-    upload.single(fieldName)(req, res, async (err) => {
-      if (err) {
-        return next(new ApiError(err.message, 400));
-      }
-
-      if (!req.file) {
-        return next(new ApiError(`Please upload an image`, 400));
-      }
-
-      try {
-        const imageUrl = await processAndUploadImage(req.file);
-        req.body[fieldName] = imageUrl;
-        next();
-      } catch (error) {
-        next(error);
-      }
-    });
-  };
-};
-
+// Enhanced upload handler with required fields check
 exports.uploadMixOfImages = (arrayOfFields) => {
   return async (req, res, next) => {
     upload.fields(arrayOfFields)(req, res, async (err) => {
-      if (err) {
-        return next(new ApiError(err.message, 400));
-      }
-
       try {
-        const uploadPromises = Object.keys(req.files).map(async (fieldName) => {
-          const imageUrl = await processAndUploadImage(req.files[fieldName][0]);
-          req.body[fieldName] = imageUrl;
-        });
+        // Error handling pipeline
+        if (err) throw new ApiError(err.message, 400);
+        if (!req.files) throw new ApiError('No files uploaded', 400);
 
-        await Promise.all(uploadPromises);
+        // Process expected fields
+        await Promise.all(
+          arrayOfFields.map(async (field) => {
+            const files = req.files[field.name];
+
+            if (field.required && (!files || files.length === 0)) {
+              throw new ApiError(`${field.name} is required`, 400);
+            }
+
+            if (files) {
+              req.body[field.name] = await processAndUploadImage(files[0]);
+            }
+          })
+        );
+
         next();
       } catch (error) {
         next(error);
@@ -151,12 +232,10 @@ exports.uploadMixOfImages = (arrayOfFields) => {
   };
 };
 
-exports.uploadUserImages = () => {
-  const fields = [
-    { name: 'personalPhoto', maxCount: 1 },
-    { name: 'idPhoto', maxCount: 1 },
-    { name: 'businessCardPhoto', maxCount: 1 },
-  ];
-
-  return exports.uploadMixOfImages(fields);
-};
+// Field Configuration (router.js)
+exports.uploadUserImages = () =>
+  exports.uploadMixOfImages([
+    { name: 'personalPhoto', maxCount: 1, required: true },
+    { name: 'idPhoto', maxCount: 1, required: true },
+    { name: 'businessCardPhoto', maxCount: 1, required: false },
+  ]);

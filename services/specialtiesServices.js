@@ -1,26 +1,23 @@
 const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
-
-const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
+const { v4: uuidv4 } = require('uuid');
+const Specialties = require('../models/specialtiesModel');
 const ApiError = require('../utils/apiError');
 
-const Specialities = require('../models/specialtyModel');
-
-// upload Single Image
-exports.uploadSpecialitiesImage = uploadSingleImage('proFileImg');
-
-// upload imge processing
+// Image processing middleware
 exports.resizeImage = asyncHandler(async (req, res, next) => {
-  const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-  if (req.file) {
-    await sharp(req.file.buffer)
+  if (!req.files) return next();
+
+  if (req.files.personalPhoto) {
+    await sharp(req.files.personalPhoto[0].buffer)
       .resize(600, 600)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
-      .toFile(`uploads/users/${filename}`);
-    req.body.proFileImg = filename;
+      .toBuffer();
+
+    req.body.proFileImg = req.files.personalPhoto[0].url;
   }
+
   next();
 });
 
