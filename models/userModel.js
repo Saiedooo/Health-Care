@@ -37,16 +37,16 @@ const userSchema = new mongoose.Schema(
     idPhoto: {
       // nationalId
       type: String,
-      required: function () {
-        return this.role === 'patient' || this.role === 'nurse';
-      },
+      // required: function () {
+      //   return this.role === 'patient' || this.role === 'nurse';
+      // },
     },
     businessCardPhoto: {
       //nursingLicense
       type: String,
-      required: function () {
-        return this.role === 'nurse';
-      },
+      // required: function () {
+      //   return this.role === 'nurse';
+      // },
     },
     departmentId: {
       //departmentId

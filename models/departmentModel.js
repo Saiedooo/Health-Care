@@ -24,7 +24,7 @@ const DepartmentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Specialty',
-      require: [true, 'Should inter some of specialities'],
+      // require: [true, 'Should inter some of specialities'],
     },
   ],
 });
