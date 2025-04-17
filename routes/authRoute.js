@@ -2,7 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
+const {
+  uploadUserImages,
+  processAndUpload,
+} = require('../middleware/uploadImageMiddleware');
 
 const {
   signupValidator,
@@ -34,7 +37,8 @@ const {
 // resizeImage,
 router.post(
   '/patientSignup',
-
+  uploadUserImages,
+  processAndUpload,
   signupValidator,
   patientSignup
 ); //+ validator
@@ -48,7 +52,13 @@ router.post(
 
 // uploadUserImages(),
 // resizeImage,
-router.post('/nurseSignup', signupValidator, nurseSignup);
+router.post(
+  '/nurseSignup',
+  uploadUserImages,
+  processAndUpload,
+  signupValidator,
+  nurseSignup
+);
 
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);

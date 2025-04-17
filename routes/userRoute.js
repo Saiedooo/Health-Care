@@ -2,7 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
+const {
+  uploadUserImages,
+  processAndUpload,
+} = require('../middleware/uploadImageMiddleware');
 
 const {
   createUser,
@@ -44,6 +47,8 @@ router.delete('/deleteMe', deleteLoggedUserData);
 router.use(authService.allowedTo('admin'));
 router.route('/').get(getUsers).post(
   // uploadUserImages(), resizeImage,
+  uploadUserImages,
+  processAndUpload,
   createUserValidator,
   createUser
 );
