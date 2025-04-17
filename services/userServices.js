@@ -56,43 +56,43 @@ const User = require('../models/userModel');
 // upload Single Image
 // exports.uploadUserImage = uploadSingleImage('personalPhoto');
 
-// upload imge processing
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  if (!req.files) return next();
+// // upload imge processing
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   if (!req.files) return next();
 
-  // Handle multiple images
-  if (req.files.personalPhoto) {
-    const filename = `user-${uuidv4()}-${Date.now()}-personal.jpeg`;
-    await sharp(req.files.personalPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.personalPhoto = req.files.personalPhoto[0].url;
-  }
+//   // Handle multiple images
+//   if (req.files.personalPhoto) {
+//     const filename = `user-${uuidv4()}-${Date.now()}-personal.jpeg`;
+//     await sharp(req.files.personalPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.personalPhoto = req.files.personalPhoto[0].url;
+//   }
 
-  if (req.files.idPhoto) {
-    const filename = `user-${uuidv4()}-${Date.now()}-id.jpeg`;
-    await sharp(req.files.idPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.idPhoto = req.files.idPhoto[0].url;
-  }
+//   if (req.files.idPhoto) {
+//     const filename = `user-${uuidv4()}-${Date.now()}-id.jpeg`;
+//     await sharp(req.files.idPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.idPhoto = req.files.idPhoto[0].url;
+//   }
 
-  if (req.files.businessCardPhoto) {
-    const filename = `user-${uuidv4()}-${Date.now()}-business.jpeg`;
-    await sharp(req.files.businessCardPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.businessCardPhoto = req.files.businessCardPhoto[0].url;
-  }
+//   if (req.files.businessCardPhoto) {
+//     const filename = `user-${uuidv4()}-${Date.now()}-business.jpeg`;
+//     await sharp(req.files.businessCardPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.businessCardPhoto = req.files.businessCardPhoto[0].url;
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // @desc  create user
 // @route put /api/v1/users

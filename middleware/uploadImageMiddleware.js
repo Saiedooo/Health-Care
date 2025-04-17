@@ -233,9 +233,9 @@ exports.uploadMixOfImages = (arrayOfFields) => {
 };
 
 // Field Configuration (router.js)
-exports.uploadUserImages = () =>
+exports.uploadUserImages = (options = { required: true }) => 
   exports.uploadMixOfImages([
-    { name: 'personalPhoto', maxCount: 1, required: true },
-    { name: 'idPhoto', maxCount: 1, required: true },
+    { name: 'personalPhoto', maxCount: 1, required: options.required },
+    { name: 'idPhoto', maxCount: 1, required: options.required },
     { name: 'businessCardPhoto', maxCount: 1, required: false },
   ]);

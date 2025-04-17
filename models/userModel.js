@@ -52,9 +52,9 @@ const userSchema = new mongoose.Schema(
       //departmentId
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Department',
-      required: function () {
-        return this.role === 'nurse';
-      },
+      // required: function () {
+      //   return this.role === 'nurse';
+      // },
     },
     specialties: [
       {

@@ -5,21 +5,21 @@ const Specialties = require('../models/specialtiesModel');
 const ApiError = require('../utils/apiError');
 
 // Image processing middleware
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  if (!req.files) return next();
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   if (!req.files) return next();
 
-  if (req.files.personalPhoto) {
-    await sharp(req.files.personalPhoto[0].buffer)
-      .resize(600, 600)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
+//   if (req.files.personalPhoto) {
+//     await sharp(req.files.personalPhoto[0].buffer)
+//       .resize(600, 600)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
 
-    req.body.proFileImg = req.files.personalPhoto[0].url;
-  }
+//     req.body.proFileImg = req.files.personalPhoto[0].url;
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // @desc  create user
 // @route put /api/v1/users

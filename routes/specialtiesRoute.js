@@ -17,15 +17,19 @@ const authService = require('../services/authServices');
 router.use(authService.protect);
 
 router.use(authService.allowedTo('admin'));
-router
-  .route('/')
-  .get(GetAllSpecialities)
-  .post(uploadUserImages(), resizeImage, createSpecialities);
+router.route('/').get(GetAllSpecialities).post(
+  // uploadUserImages({ required: false }), resizeImage,
+  createSpecialities
+);
 
 router
   .route('/:id')
   .get(getSpecialitiesById)
-  .put(uploadUserImages(), resizeImage, updateSpecialitiesById)
+  .put(
+    // uploadUserImages({ required: false }),
+    // resizeImage,
+    updateSpecialitiesById
+  )
   .delete(deleteSpecialitiesById);
 
 module.exports = router;

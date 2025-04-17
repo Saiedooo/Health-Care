@@ -154,40 +154,40 @@ const User = require('../models/userModel');
 // // upload Single Image
 // exports.uploadUserImage = uploadSingleImage('personalPhoto');
 
-// // upload imge processing
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  if (!req.files) return next();
+// // // upload imge processing
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   if (!req.files) return next();
 
-  // Handle multiple images
-  if (req.files.personalPhoto) {
-    await sharp(req.files.personalPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.personalPhoto = req.files.personalPhoto[0].url;
-  }
+//   // Handle multiple images
+//   if (req.files.personalPhoto) {
+//     await sharp(req.files.personalPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.personalPhoto = req.files.personalPhoto[0].url;
+//   }
 
-  if (req.files.idPhoto) {
-    await sharp(req.files.idPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.idPhoto = req.files.idPhoto[0].url;
-  }
+//   if (req.files.idPhoto) {
+//     await sharp(req.files.idPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.idPhoto = req.files.idPhoto[0].url;
+//   }
 
-  if (req.files.businessCardPhoto) {
-    await sharp(req.files.businessCardPhoto[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    req.body.businessCardPhoto = req.files.businessCardPhoto[0].url;
-  }
+//   if (req.files.businessCardPhoto) {
+//     await sharp(req.files.businessCardPhoto[0].buffer)
+//       .resize(500, 500)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
+//     req.body.businessCardPhoto = req.files.businessCardPhoto[0].url;
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // @desc Signup
 // @route Post /api/v1/auth/signup

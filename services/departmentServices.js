@@ -4,22 +4,22 @@ const { v4: uuidv4 } = require('uuid');
 const Department = require('../models/departmentModel');
 const ApiError = require('../utils/apiError');
 
-// Image processing middleware
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  if (!req.files) return next();
+// // Image processing middleware
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   if (!req.files) return next();
 
-  if (req.files.personalPhoto) {
-    await sharp(req.files.personalPhoto[0].buffer)
-      .resize(600, 600)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
+//   if (req.files.personalPhoto) {
+//     await sharp(req.files.personalPhoto[0].buffer)
+//       .resize(600, 600)
+//       .toFormat('jpeg')
+//       .jpeg({ quality: 90 })
+//       .toBuffer();
 
-    req.body.image = req.files.personalPhoto[0].url;
-  }
+//     req.body.image = req.files.personalPhoto[0].url;
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // Create department handler
 exports.createDepartment = asyncHandler(async (req, res) => {
