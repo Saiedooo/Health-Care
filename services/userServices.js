@@ -104,6 +104,27 @@ const User = require('../models/userModel');
 
 // controllers/nurseController.js
 
+exports.GetAllNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await User.find({ role: 'nurse' })
+    .select('-password -passwordResetCode -passwordResetExpires') // Exclude sensitive fields
+    .populate('departmentId', 'name') // Include department name
+    .populate('specialties', 'name'); // Include specialty names
+
+  if (!nurses || nurses.length === 0) {
+    return next(
+      new ApiError('There are no nurses available at the moment', 404)
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    results: nurses.length,
+    data: {
+      nurses,
+    },
+  });
+});
+
 exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
   const { departmentId } = req.params;
 

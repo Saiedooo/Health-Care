@@ -20,6 +20,7 @@ const {
   updateLoggedUserPassword,
   deleteLoggedUserData,
   getNursesByDepartment,
+  GetAllNurses,
 } = require('../services/userServices');
 
 const {
@@ -78,4 +79,5 @@ router.get(
   getNursesByDepartment
 );
 
+router.get('/getAllnursesRole', GetAllNurses);
 module.exports = router;
