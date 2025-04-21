@@ -106,9 +106,9 @@ const User = require('../models/userModel');
 
 exports.GetAllNurses = asyncHandler(async (req, res, next) => {
   const nurses = await User.find({ role: 'nurse' })
-    .select('-password -passwordResetCode -passwordResetExpires') // Exclude sensitive fields
-    .populate('departmentId', 'name') // Include department name
-    .populate('specialties', 'name'); // Include specialty names
+    .select('-password -passwordResetCode -passwordResetExpires')
+    .populate('departmentId', 'name')
+    .populate('specialties', 'name');
 
   if (!nurses || nurses.length === 0) {
     return next(
