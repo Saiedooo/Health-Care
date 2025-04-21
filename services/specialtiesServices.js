@@ -28,14 +28,14 @@ const ApiError = require('../utils/apiError');
 exports.createSpecialities = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
 
-  const newSpecialiteis = new Specialities(req.body);
+  const newSpecialiteis = new Specialties(req.body);
 
   await newSpecialiteis.save();
   res.status(201).json(newSpecialiteis);
 });
 
 exports.GetAllSpecialities = asyncHandler(async (req, res) => {
-  const specialities = await Specialities.find();
+  const specialities = await specialities.find();
   if (!specialities) {
     return next(new ApiError('No specialist for this id', 404));
   }
@@ -46,7 +46,7 @@ exports.GetAllSpecialities = asyncHandler(async (req, res) => {
 // Get a single user by ID
 
 exports.getSpecialitiesById = asyncHandler(async (req, res) => {
-  const specialities = await Specialities.findById(req.params.id);
+  const specialities = await specialities.findById(req.params.id);
   if (!specialities) {
     return next(
       new ApiError(`No Specialities for this id ${req.params.id}`, 404)
@@ -59,7 +59,7 @@ exports.getSpecialitiesById = asyncHandler(async (req, res) => {
 exports.updateSpecialitiesById = asyncHandler(async (req, res, next) => {
   const { name, description } = req.body;
 
-  const specialities = await Specialities.findByIdAndUpdate(
+  const specialities = await specialities.findByIdAndUpdate(
     req.params.id,
 
     req.body,
@@ -77,7 +77,7 @@ exports.updateSpecialitiesById = asyncHandler(async (req, res, next) => {
 
 // Delete a user by ID
 exports.deleteSpecialitiesById = asyncHandler(async (req, res) => {
-  const specialities = await Specialities.findByIdAndDelete(req.params.id);
+  const specialities = await specialities.findByIdAndDelete(req.params.id);
   if (!specialities) {
     return next(
       new ApiError(`No Specialities for this id ${req.params.id}`, 404)

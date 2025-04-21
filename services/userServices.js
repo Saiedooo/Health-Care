@@ -7,6 +7,8 @@ const createToken = require('../utils/createToken');
 
 const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 const ApiError = require('../utils/apiError');
+const ApiFeatures = require('../utils/apiFeature');
+const Department = require('../models/departmentModel');
 const User = require('../models/userModel');
 
 // console.log(uuidv4());
@@ -98,7 +100,47 @@ const User = require('../models/userModel');
 // @route put /api/v1/users
 // private
 
-exports.createUser = asyncHandler(async (req, res) => {
+// get all nurses Account for Specefic Department
+
+// controllers/nurseController.js
+
+exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
+  const { departmentId } = req.params;
+
+  let filter = {};
+  if (req.filterObj) {
+    filter = req.filterObj;
+  }
+
+  const department = await Department.findById(departmentId);
+  if (!department) {
+    return res.status(404).json({ error: 'Department not found' });
+  }
+  const nurses = await User.find({
+    role: 'nurse',
+    departmentId: departmentId,
+    isActive: true,
+  }).select('-password -passwordResetCode -passwordResetExpires');
+
+  const documentsCounts = await model.countDocuments();
+
+  const apiFeatures = new ApiFeatures(User.find(filter), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  res.json({
+    department: department.name,
+    count: nurses.length,
+    nurses,
+    apiFeatures,
+  });
+  res.status(500).json({ error: 'there is no nurse In this Department' });
+});
+
+exports.createUser = asyncHandler(async (req, res, next) => {
   try {
     //   const { firstName, lastName, email, password, role, phoneNumber, address } =
     //     req.body;
@@ -131,13 +173,27 @@ exports.createUser = asyncHandler(async (req, res) => {
 
 // Get all users
 // @admin
-exports.getUsers = asyncHandler(async (req, res) => {
+exports.getUsers = asyncHandler(async (req, res, next) => {
   const users = await User.find();
+  // const documentsCounts = await model.countDocuments();
+
+  let filter = {};
+  if (req.filterObj) {
+    filter = req.filterObj;
+  }
+  const documentsCounts = await model.countDocuments();
+
+  const apiFeatures = new ApiFeatures(users.find(filter), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
 
   if (!users) {
     return next(new ApiError(`No user for this id ${req.params.id}`, 404));
   }
-  res.status(200).json(users);
+  res.status(200).json(apiFeatures);
 });
 
 // Get a single user by ID
@@ -151,7 +207,7 @@ exports.getUserbyId = asyncHandler(async (req, res) => {
 });
 
 // Update a user by ID
-exports.updateUserById = asyncHandler(async (req, res) => {
+exports.updateUserById = asyncHandler(async (req, res, next) => {
   const {
     firstName,
     lastName,
@@ -188,7 +244,7 @@ exports.updateUserById = asyncHandler(async (req, res) => {
 });
 
 // Delete a user by ID
-exports.deleteUserById = asyncHandler(async (req, res) => {
+exports.deleteUserById = asyncHandler(async (req, res, next) => {
   const deletedUser = await User.findByIdAndDelete(req.params.id);
 
   if (!deletedUser) {

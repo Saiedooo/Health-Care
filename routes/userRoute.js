@@ -19,6 +19,7 @@ const {
   updateLoggedUserData,
   updateLoggedUserPassword,
   deleteLoggedUserData,
+  getNursesByDepartment,
 } = require('../services/userServices');
 
 const {
@@ -69,5 +70,12 @@ router
     updateUserById
   )
   .delete(deleteUserValidator, deleteUserById);
+
+// Get nurses for Specefic Department
+router.get(
+  '/department/:departmentId',
+  authService.allowedTo('patient', 'admin', 'patient'),
+  getNursesByDepartment
+);
 
 module.exports = router;
