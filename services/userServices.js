@@ -111,6 +111,7 @@ exports.GetAllNurses = asyncHandler(async (req, res, next) => {
     .populate('specialties', 'name');
 
   if (!nurses || nurses.length === 0) {
+    //not
     return next(
       new ApiError('There are no nurses available at the moment', 404)
     );
@@ -143,7 +144,7 @@ exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
     isActive: true,
   }).select('-password -passwordResetCode -passwordResetExpires');
 
-  const documentsCounts = await model.countDocuments();
+  const documentsCounts = await nurses.countDocuments();
 
   const apiFeatures = new ApiFeatures(User.find(filter), req.query)
     .paginate(documentsCounts)
