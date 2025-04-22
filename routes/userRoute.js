@@ -1,5 +1,4 @@
 const express = require('express');
-
 const router = express.Router();
 
 const {
@@ -9,8 +8,6 @@ const {
 
 const {
   createUser,
-  uploadUserImage,
-  resizeImage,
   getUserbyId,
   getUsers,
   updateUserById,
@@ -20,7 +17,7 @@ const {
   updateLoggedUserPassword,
   deleteLoggedUserData,
   getNursesByDepartment,
-  GetAllNurses,
+  getAllNurses,
 } = require('../services/userServices');
 
 const {
@@ -28,56 +25,45 @@ const {
   updateUserValidator,
   deleteUserValidator,
   getUserValidator,
-
   updateUserLoggedValidator,
 } = require('../utils/validators/userValidator');
 
 const authService = require('../services/authServices');
 
+// Apply protection to all routes
 router.use(authService.protect);
 
-router.get('/getMe', getLoggedUserData, updateUserById);
+// User profile routes
+router.get('/getMe', getLoggedUserData, getUserbyId);
 router.put('/changeMyPassword', updateLoggedUserPassword);
-router.put(
-  '/updateMe',
-  getLoggedUserData,
-  updateUserLoggedValidator,
-  updateLoggedUserData
-);
+router.put('/updateMe', updateUserLoggedValidator, updateLoggedUserData);
 router.delete('/deleteMe', deleteLoggedUserData);
 
-router.use(authService.allowedTo('admin'));
-router.route('/').get(getUsers).post(
-  // uploadUserImages(), resizeImage,
-  uploadUserImages,
-  processAndUpload,
-  createUserValidator,
-  createUser
+// Nurse routes - placed before parameterized routes
+router.get(
+  '/nurses',
+  authService.allowedTo('patient', 'admin', 'nurse'),
+  getAllNurses
 );
-// .post(uploadUserImage, resizeImage, createUserValidator, createUser);
 
-router
-  .route('/:id')
-  .get(
-    getUserValidator,
-    getUserbyId,
-    // .put(uploadUserImage, resizeImage
-    updateUserValidator,
-    updateUserById
-  )
-  .put(
-    // uploadUserImages(), resizeImage,
-    updateUserValidator,
-    updateUserById
-  )
-  .delete(deleteUserValidator, deleteUserById);
-
-// Get nurses for Specefic Department
 router.get(
   '/department/:departmentId',
-  authService.allowedTo('patient', 'admin', 'patient'),
+  authService.allowedTo('patient', 'admin', 'nurse'),
   getNursesByDepartment
 );
 
-router.get('/getAllnursesRole', GetAllNurses);
+// Admin-only routes
+router.use(authService.allowedTo('admin'));
+
+router
+  .route('/')
+  .get(getUsers)
+  .post(uploadUserImages, processAndUpload, createUserValidator, createUser);
+
+router
+  .route('/:id')
+  .get(getUserValidator, getUserbyId)
+  .put(updateUserValidator, updateUserById)
+  .delete(deleteUserValidator, deleteUserById);
+
 module.exports = router;

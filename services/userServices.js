@@ -9,6 +9,7 @@ const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 const ApiError = require('../utils/apiError');
 const ApiFeatures = require('../utils/apiFeature');
 const Department = require('../models/departmentModel');
+const specialties = require('../models/specialtyModel');
 const User = require('../models/userModel');
 
 // console.log(uuidv4());
@@ -103,63 +104,111 @@ const User = require('../models/userModel');
 // get all nurses Account for Specefic Department
 
 // controllers/nurseController.js
+exports.getAllNurses = asyncHandler(async (req, res, next) => {
+  try {
+    // 1. Build query with proper filters
+    const filter = {
+      role: 'nurse',
+      isActive: true,
+      ...(req.query.department && { departmentId: req.query.department }),
+    };
 
-exports.GetAllNurses = asyncHandler(async (req, res, next) => {
-  const nurses = await User.find({ role: 'nurse' })
-    .select('-password -passwordResetCode -passwordResetExpires')
-    .populate('departmentId', 'name')
-    .populate('specialties', 'name');
+    // 2. Execute query with proper error handling
+    const nurses = await User.find(filter)
+      .select('-password -passwordResetCode -passwordResetExpires')
+      .populate({
+        path: 'departmentId',
+        select: 'name -_id',
+      })
+      .populate({
+        path: 'specialties',
+        select: 'name -_id',
+      })
+      .lean(); // Convert to plain JS objects
 
-  if (!nurses || nurses.length === 0) {
-    //not
-    return next(
-      new ApiError('There are no nurses available at the moment', 404)
-    );
+    if (!nurses || !nurses.length) {
+      return res.status(200).json({
+        status: 'success',
+        results: 0,
+        data: [],
+      });
+    }
+
+    // 3. Successful response
+    res.status(200).json({
+      status: 'success',
+      results: nurses.length,
+      data: nurses,
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    throw new ApiError('Failed to fetch nurses', 500);
   }
-
-  res.status(200).json({
-    status: 'success',
-    results: nurses.length,
-    data: {
-      nurses,
-    },
-  });
 });
-
 exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
   const { departmentId } = req.params;
 
-  let filter = {};
-  if (req.filterObj) {
-    filter = req.filterObj;
-  }
-
+  // 1. Validate department exists first
   const department = await Department.findById(departmentId);
   if (!department) {
-    return res.status(404).json({ error: 'Department not found' });
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Department not found',
+    });
   }
-  const nurses = await User.find({
-    role: 'nurse',
-    departmentId: departmentId,
-    isActive: true,
-  }).select('-password -passwordResetCode -passwordResetExpires');
 
-  const documentsCounts = await nurses.countDocuments();
+  try {
+    // 2. Build base query
+    const query = {
+      role: 'nurse',
+      departmentId: departmentId,
+      isActive: true,
+    };
 
-  const apiFeatures = new ApiFeatures(User.find(filter), req.query)
-    .paginate(documentsCounts)
-    .filter()
-    .search()
-    .limitFields()
-    .sort();
+    // 3. Execute query with API features
+    const nursesQuery = User.find(query).select(
+      '-password -passwordResetCode -passwordResetExpires'
+    );
 
-  res.json({
-    department: department.name,
-    count: nurses.length,
-    nurses,
-    apiFeatures,
-  });
-  res.status(500).json({ error: 'there is no nurse In this Department' });
+    const apiFeatures = new ApiFeatures(nursesQuery, req.query)
+      .filter()
+      .search()
+      .limitFields()
+      .sort();
+
+    // 4. Execute the final query
+    const nurses = await apiFeatures.query;
+
+    // 5. Handle empty results
+    if (!nurses || nurses.length === 0) {
+      return res.status(200).json({
+        status: 'success',
+        results: 0,
+        message: 'No nurses found in this department',
+        data: [],
+      });
+    }
+
+    // 6. Successful response
+    res.status(200).json({
+      status: 'success',
+      results: nurses.length,
+      department: department.name,
+      data: {
+        nurses,
+        // Include pagination if available
+        pagination: apiFeatures.paginationResult,
+      },
+    });
+  } catch (err) {
+    // Handle any unexpected errors
+    console.error('Error fetching nurses:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? err : undefined,
+    });
+  }
 });
 
 exports.createUser = asyncHandler(async (req, res, next) => {
