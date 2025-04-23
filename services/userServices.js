@@ -134,6 +134,7 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       });
     }
 
+    console.log(nurses);
     // 3. Successful response
     res.status(200).json({
       status: 'success',

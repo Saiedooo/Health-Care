@@ -31,7 +31,7 @@ const {
 const authService = require('../services/authServices');
 
 // Apply protection to all routes
-router.use(authService.protect);
+// router.use(authService.protect);
 
 // User profile routes
 router.get('/getMe', getLoggedUserData, getUserbyId);
@@ -42,18 +42,18 @@ router.delete('/deleteMe', deleteLoggedUserData);
 // Nurse routes - placed before parameterized routes
 router.get(
   '/nurses',
-  authService.allowedTo('patient', 'admin', 'nurse'),
+  // authService.allowedTo('patient', 'admin', 'nurse'),
   getAllNurses
 );
 
 router.get(
   '/department/:departmentId',
-  authService.allowedTo('patient', 'admin', 'nurse'),
+  // authService.allowedTo('patient', 'admin', 'nurse'),
   getNursesByDepartment
 );
 
 // Admin-only routes
-router.use(authService.allowedTo('admin'));
+// router.use(authService.allowedTo('admin'));
 
 router
   .route('/')
