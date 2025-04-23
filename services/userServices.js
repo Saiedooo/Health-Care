@@ -246,30 +246,73 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 // Get all users
 // @admin
 exports.getUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find();
-  // const documentsCounts = await model.countDocuments();
+  try {
+    // 1. Execute the query
+    const users = await User.find().select('-password'); // Exclude sensitive fields
 
-  let filter = {};
-  if (req.filterObj) {
-    filter = req.filterObj;
+    // 2. Handle empty results
+    if (!users || users.length === 0) {
+      return res.status(200).json({
+        status: 'success',
+        results: 0,
+        data: [],
+      });
+    }
+
+    // 3. Send successful response
+    res.status(200).json({
+      status: 'success',
+      results: users.length,
+      data: users,
+    });
+  } catch (error) {
+    // 4. Handle errors properly
+    console.error('Error fetching users:', error);
+    next(new ApiError('Failed to fetch users. Please try again later.', 500));
   }
-  const documentsCounts = await model.countDocuments();
-
-  const apiFeatures = new ApiFeatures(users.find(filter), req.query)
-    .paginate(documentsCounts)
-    .filter()
-    .search()
-    .limitFields()
-    .sort();
-
-  if (!users) {
-    return next(new ApiError(`No user for this id ${req.params.id}`, 404));
-  }
-  res.status(200).json(apiFeatures);
 });
+//   try {
+//     // 1. Build the base query
+//     const filter = req.filter || {};
+
+//     // 2. Create API features instance
+//     const features = new ApiFeatures(User.find(filter), req.query)
+//       .filter()
+//       .search()
+//       .limitFields()
+//       .sort();
+
+//     // 3. Execute query for paginated results
+//     const users = await features.query;
+
+//     // 4. Get total count for pagination (without filters)
+//     const totalCount = await User.countDocuments(filter);
+
+//     // 5. Apply pagination after getting results
+//     features.paginate(totalCount);
+
+//     // 6. Handle empty results
+//     if (!users.length) {
+//       return res.status(200).json({
+//         status: 'success',
+//         results: 0,
+//         data: [],
+//       });
+//     }
+
+//     // 7. Send response
+//     res.status(200).json({
+//       status: 'success',
+//       results: users.length,
+//       total: totalCount,
+//       data: users,
+//     });
+//   } catch (error) {
+//     next(new ApiError('Failed to fetch users', 500));
+//   }
+// });
 
 // Get a single user by ID
-
 exports.getUserbyId = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
