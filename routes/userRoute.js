@@ -47,7 +47,7 @@ router.get(
   getAllNurses
 );
 
-router.get('/nurses/:nursesId', getNurseById);
+router.get('/nurses/:id', getNurseById);
 
 router.get(
   '/department/:departmentId',

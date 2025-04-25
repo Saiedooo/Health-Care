@@ -321,14 +321,60 @@ exports.getUserbyId = asyncHandler(async (req, res) => {
   res.status(200).json(user);
 });
 
-exports.getNurseById = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id, { role: 'nurse' });
-  if (!user) {
-    return next(new ApiError(`No user for this id ${req.params.id}`, 404));
-  }
-  res.status(200).json(user);
-});
+// exports.getNurseById = asyncHandler(async (req, res, next) => {
+//   const user = await User.findById({ _id: req.params.id }, { role: 'nurse' });
+//   if (!user) {
+//     return next(new ApiError(`No user for this id ${req.params.id}`, 404));
+//   }
+//   res.status(200).json(user);
+// });
 
+// exports.getNurseById = asyncHandler(async (req, res, next) => {
+//   if (!mongoose.Types.ObjectId.isValid(req.params.nurseId)) {
+//     return next(new ApiError('Invalid nurse ID format', 400));
+//   }
+
+//   const nurse = await User.findOne({
+//     _id: req.params.nurseId,
+//     role: 'nurse',
+//   })
+//     .select('-password -__v -refreshToken')
+//     .populate({
+//       path: 'appointments',
+//       select: 'date patient status',
+//       match: { status: { $ne: 'cancelled' } },
+//     })
+//     .populate('certifications');
+
+//   if (!nurse) {
+//     return next(
+//       new ApiError(`No nurse found with ID ${req.params.nurseId}`, 404)
+//     );
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     data: nurse,
+//   });
+// });
+
+exports.getNurseById = asyncHandler(async (req, res, next) => {
+  const nurse = await User.findOne({
+    _id: req.params.id,
+    role: 'nurse',
+  }).select('-password');
+
+  if (!nurse) {
+    return next(
+      new ApiError(`No nurse found with ID ${req.params.nurseId}`, 404)
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    data: nurse,
+  });
+});
 // Update a user by ID
 exports.updateUserById = asyncHandler(async (req, res, next) => {
   const {
