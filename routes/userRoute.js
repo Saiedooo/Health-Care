@@ -18,6 +18,7 @@ const {
   deleteLoggedUserData,
   getNursesByDepartment,
   getAllNurses,
+  getNurseById,
 } = require('../services/userServices');
 
 const {
@@ -45,6 +46,8 @@ router.get(
   // authService.allowedTo('patient', 'admin', 'nurse'),
   getAllNurses
 );
+
+router.get('/nurses/:nursesId', getNurseById);
 
 router.get(
   '/department/:departmentId',
