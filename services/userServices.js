@@ -270,22 +270,22 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
     console.error('Error fetching users:', error);
     next(new ApiError('Failed to fetch users. Please try again later.', 500));
   }
-});
-//   try {
-//     // 1. Build the base query
-//     const filter = req.filter || {};
+}); //get nurse
+// try {
+//   // 1. Build the base query
+//   const filter = req.filter || {};
 
-//     // 2. Create API features instance
-//     const features = new ApiFeatures(User.find(filter), req.query)
-//       .filter()
-//       .search()
-//       .limitFields()
-//       .sort();
+//   // 2. Create API features instance
+//   const features = new ApiFeatures(User.find(filter), req.query)
+//     .filter()
+//     .search()
+//     .limitFields()
+//     .sort();
 
-//     // 3. Execute query for paginated results
-//     const users = await features.query;
+//   // 3. Execute query for paginated results
+//   const users = await features.query;
 
-//     // 4. Get total count for pagination (without filters)
+//   // 4. Get total count for pagination (without filters)
 //     const totalCount = await User.countDocuments(filter);
 
 //     // 5. Apply pagination after getting results

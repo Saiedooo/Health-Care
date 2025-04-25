@@ -38,7 +38,7 @@ const authService = require('../services/authServices');
 router.get('/getMe', getLoggedUserData, getUserbyId);
 router.put('/changeMyPassword', updateLoggedUserPassword);
 router.put('/updateMe', updateUserLoggedValidator, updateLoggedUserData);
-router.delete('/deleteMe', deleteLoggedUserData);
+router.delete('/deleteMe', deleteLoggedUserData); //route + endpoint
 
 // Nurse routes - placed before parameterized routes
 router.get(

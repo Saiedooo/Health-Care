@@ -1,19 +1,33 @@
 const mongoose = require('mongoose');
 
 const RequestSchema = new mongoose.Schema({
-  patientId: {
+  patient: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
+    validate: {
+      validator: async function (id) {
+        const user = await mongoose.model('User').findById(id);
+        return user && user.role === 'patient';
+      },
+      message: 'Patient ID must reference a valid patient user',
+    },
   },
-  nurseId: {
+  nurse: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    validate: {
+      validator: async function (id) {
+        if (!id) return true; // Nurse is optional
+        const user = await mongoose.model('User').findById(id);
+        return user && user.role === 'nurse';
+      },
+      message: 'Nurse ID must reference a valid nurse user',
+    },
   },
-  departmentId: {
+  department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
-    required: false,
   },
   requestDate: {
     type: Date,
@@ -21,13 +35,27 @@ const RequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Approved', 'Rejected'],
+    enum: ['Pending', 'Approved', 'Rejected', 'Completed'],
     default: 'Pending',
   },
   description: {
     type: String,
-    required: true,
+    required: [true, 'Description is required'],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Update timestamps on save
+RequestSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Request', RequestSchema);
