@@ -321,7 +321,7 @@ exports.getUserbyId = asyncHandler(async (req, res) => {
   res.status(200).json(user);
 });
 
-exports.getNurseById = asyncHandler(async (req, res) => {
+exports.getNurseById = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id, { role: 'nurse' });
   if (!user) {
     return next(new ApiError(`No user for this id ${req.params.id}`, 404));
