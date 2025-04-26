@@ -1,45 +1,63 @@
-const factoryHandler = require('./factoryHandler');
-const Review = require(."../");
+const mongoose = require('mongoose');
 
-// Nested Route
-// Get /api/v1/products/:productId/reviews
-exports.createFilterObj = (req, res, next) => {
-  let filterObject = {};
-  if (req.params.productId) filterObject = { product: req.params.productId };
-  req.filterObj = filterObject;
+const reviewSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+    },
+    ratings: {
+      type: Number,
+      min: [1, 'Min ratings value is 1.0'],
+      max: [5, 'Max ratings value is 5.0'],
+      required: [true, 'review ratings required'],
+    },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'Review must belong to user'],
+    },
+  },
+  { timestamps: true }
+);
+
+reviewSchema.pre(/^find/, function (next) {
+  this.populate({ path: 'user', select: 'name' });
   next();
-};
+});
 
-// @desc  get All reviews
-// @route get /api/v1/reviews
-// @acces admin/user
+// reviewSchema.statics.calcAverageRatingsAndQuantity = async function (
+//   productId
+// ) {
+//   const result = await this.aggregate([
+//     { $match: { product: productId } },
+//     {
+//       $group: {
+//         _id: 'product',
+//         avgRatings: { $avg: '$ratings' },
+//         ratingQuantity: { $sum: 1 },
+//       },
+//     },
+//   ]);
+//   console.log(result);
+//   if (result.length > 0) {
+//     await Product.findByIdAndUpdate(productId, {
+//       ratingsAverage: result[0].avgRatings,
+//       ratingQuantity: result[0].ratingQuantity,
+//     });
+//   } else {
+//     await Product.findByIdAndUpdate(productId, {
+//       ratingsAverage: 0,
+//       ratingQuantity: 0,
+//     });
+//   }
 
-exports.getReviews = factoryHandler.getAll(Review);
+//   reviewSchema.post('save', async function () {
+//     await this.constructor.calcAverageRatingsAndQuantity(this.product);
+//   });
+// };
 
-// @desc    get Specific Review
-// @route   get /api/v1/Reviews
-// @acces admin/user
-exports.getOneReview = factoryHandler.getOneById(Review);
+// reviewSchema.post('remove', async function () {
+//   await this.constructor.calcAverageRatingsAndQuantity(this.product);
+// });
 
-// @desc   Create Review
-// @route  post /api/v1/Reviews
-// @acces admin/user
-exports.createReview = factoryHandler.createOne(Review);
-
-// nested Route
-exports.setProductIdAndUserIdToBody = (req, res, next) => {
-  // Nested route (Create)
-  // if (!req.body.product) req.body.product = req.params.productId;
-  if (!req.body.user) req.body.user = req.user._id;
-  next();
-};
-
-// @desc   Update Review
-// @route  put /api/v1/Reviews
-// @acces admin/user
-exports.updateReview = factoryHandler.updateOne(Review);
-
-// @desc   Delete Review
-// @route  Delete /api/v1/Reviews
-// @acces admin/user/manger
-exports.deleteReview = factoryHandler.deleteOne(Review);
+module.exports = mongoose.model('Review', reviewSchema);

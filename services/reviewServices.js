@@ -7,29 +7,12 @@ const Review = require('../models/reviewModel');
 
 // Nested Route
 // Get /api/v1/products/:productId/reviews
-exports.createFilterObj = (req, res, next) => {
-  let filterObject = {};
-  if (req.params.productId) filterObject = { product: req.params.productId };
-  req.filterObj = filterObject;
-  next();
-};
-
-// // Image processing middleware
-// exports.resizeImage = asyncHandler(async (req, res, next) => {
-//   if (!req.files) return next();
-
-//   if (req.files.personalPhoto) {
-//     await sharp(req.files.personalPhoto[0].buffer)
-//       .resize(600, 600)
-//       .toFormat('jpeg')
-//       .jpeg({ quality: 90 })
-//       .toBuffer();
-
-//     req.body.image = req.files.personalPhoto[0].url;
-//   }
-
+// exports.createFilterObj = (req, res, next) => {
+//   let filterObject = {};
+//   if (req.params.productId) filterObject = { product: req.params.productId };
+//   req.filterObj = filterObject;
 //   next();
-// });
+// };
 
 // Create department handler
 exports.createReview = asyncHandler(async (req, res) => {
@@ -42,7 +25,7 @@ exports.createReview = asyncHandler(async (req, res) => {
 
 // Get all users
 // @admin
-exports.getReviews = asyncHandler(async (req, res) => {
+exports.getReviews = asyncHandler(async (req, res, next) => {
   const Reviews = await Review.find();
 
   if (!Reviews) {
@@ -53,7 +36,7 @@ exports.getReviews = asyncHandler(async (req, res) => {
 
 // Get a single user by ID
 
-exports.getReviewById = asyncHandler(async (req, res) => {
+exports.getReviewById = asyncHandler(async (req, res, next) => {
   const Review = await Review.findById(req.params.id);
   if (!Review) {
     return next(new ApiError(`No Reviews for this User ${req.params.id}`, 404));
@@ -62,8 +45,8 @@ exports.getReviewById = asyncHandler(async (req, res) => {
 });
 
 // Update a user by ID
-exports.updateReviewById = asyncHandler(async (req, res) => {
-  const { name, description, specialties } = req.body;
+exports.updateReviewById = asyncHandler(async (req, res, next) => {
+  // const { name, description, specialties } = req.body;
 
   const updateReview = await Review.findByIdAndUpdate(
     req.params.id,
@@ -80,7 +63,7 @@ exports.updateReviewById = asyncHandler(async (req, res) => {
 });
 
 // Delete a user by ID
-exports.deleteReviewById = asyncHandler(async (req, res) => {
+exports.deleteReviewById = asyncHandler(async (req, res, next) => {
   const Review = await Review.findByIdAndDelete(req.params.id);
   if (!Review) {
     return next(new ApiError(`No Review for this id ${req.params.id}`, 404));

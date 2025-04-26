@@ -13,6 +13,7 @@ const adminActivateRoute = require('./routes/adminActivateRoute');
 const departmentRoute = require('./routes/DepartmentRoute');
 const specialtiesRoute = require('./routes/specialtiesRoute');
 const requestRoute = require('./routes/requestRoute');
+const reviewRoute = require('./routes/reviewRoute');
 
 dotenv.config({ path: '.env' });
 
@@ -42,6 +43,7 @@ app.use('/api/v1/activation', adminActivateRoute);
 app.use('/api/v1/department', departmentRoute);
 app.use('/api/v1/specialties', specialtiesRoute);
 app.use('/api/v1/request', requestRoute);
+app.use('/api/v1/review', reviewRoute);
 
 // Db connection
 dbConnection();

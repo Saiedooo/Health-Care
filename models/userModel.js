@@ -71,7 +71,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'must be add your address'],
     },
+    review: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Review',
+    },
   },
+
   { timestamps: true }
 );
 
