@@ -32,7 +32,7 @@ const {
 const authService = require('../services/authServices');
 
 // Apply protection to all routes
-router.use(authService.protect);
+// router.use(authService.protect);
 
 // User profile routes
 router.get('/getMe', getLoggedUserData, getUserbyId);
