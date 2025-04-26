@@ -47,20 +47,21 @@ exports.getAllRequests = asyncHandler(async (req, res, next) => {
 // });
 
 exports.createRequest = asyncHandler(async (req, res, next) => {
-  const { nurseId, description } = req.body;
-
   // Get the logged-in user's ID (Patient)
   const patientId = req.user._id;
 
-  // Validate nurseId
-  if (!mongoose.Types.ObjectId.isValid(nurseId)) {
+  // Get nurse and description from body
+  const { nurse, description } = req.body;
+
+  // Validate nurse ID
+  if (!mongoose.Types.ObjectId.isValid(nurse)) {
     return next(new ApiError('Invalid nurse ID', 400));
   }
 
   // Create the request
   const request = await Request.create({
-    patientId,
-    nurseId,
+    patient: patientId,
+    nurse,
     description,
   });
 
