@@ -35,7 +35,7 @@ exports.createSpecialities = asyncHandler(async (req, res) => {
 });
 
 exports.GetAllSpecialities = asyncHandler(async (req, res) => {
-  const specialities = await specialities.find();
+  const specialities = await Specialties.find();
   if (!specialities) {
     return next(new ApiError('No specialist for this id', 404));
   }
