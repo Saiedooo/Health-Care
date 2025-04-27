@@ -35,7 +35,7 @@ const authService = require('../services/authServices');
 // router.use(authService.protect);
 
 // User profile routes
-router.get('/getMe', getLoggedUserData, getUserbyId);
+router.get('/getMe', getLoggedUserData);
 router.put('/changeMyPassword', updateLoggedUserPassword);
 router.put('/updateMe', updateUserLoggedValidator, updateLoggedUserData);
 router.delete('/deleteMe', deleteLoggedUserData); //route + endpoint

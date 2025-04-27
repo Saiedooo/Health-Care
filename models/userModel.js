@@ -51,14 +51,14 @@ const userSchema = new mongoose.Schema(
       //   return this.role === 'nurse';
       // },
     },
-    departmentId: {
-      //departmentId
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Department',
-      // required: function () {
-      //   return this.role === 'nurse';
-      // },
-    },
+    // departmentId: {
+    //   //departmentId
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'Department',
+    //   // required: function () {
+    //   //   return this.role === 'nurse';
+    //   // },
+    // },
     specialty: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Specialty',

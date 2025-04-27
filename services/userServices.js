@@ -104,111 +104,70 @@ const User = require('../models/userModel');
 // get all nurses Account for Specefic Department
 
 // controllers/nurseController.js
+
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build query with proper filters
+    // 1. Build query
     const filter = {
       role: 'nurse',
       isActive: true,
-      ...(req.query.department && { departmentId: req.query.department }),
+      ...(req.query.specialty && { specialty: req.query.specialty }),
     };
 
-    // 2. Execute query with proper error handling
+    // 2. Execute query
     const nurses = await User.find(filter)
-      .select('-password -passwordResetCode -passwordResetExpires')
+      .select(
+        '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
+      )
       .populate({
-        path: 'departmentId',
-        select: 'name -_id',
+        path: 'specialty',
+        select: 'name description',
       })
-      .populate({
-        path: 'specialties',
-        select: 'name -_id',
-      })
-      .lean(); // Convert to plain JS objects
+      .lean();
 
-    if (!nurses || !nurses.length) {
-      return res.status(200).json({
-        status: 'success',
-        results: 0,
-        data: [],
-      });
-    }
-
-    console.log(nurses);
-    // 3. Successful response
+    // 3. Handle response
     res.status(200).json({
       status: 'success',
       results: nurses.length,
       data: nurses,
     });
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Error fetching nurses:', error);
     throw new ApiError('Failed to fetch nurses', 500);
   }
 });
-exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
-  const { departmentId } = req.params;
 
-  // 1. Validate department exists first
-  const department = await Department.findById(departmentId);
-  if (!department) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Department not found',
-    });
-  }
-
+exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
-    // 2. Build base query
-    const query = {
-      role: 'nurse',
-      departmentId: departmentId,
-      isActive: true,
-    };
+    const { specialtyId } = req.params;
 
-    // 3. Execute query with API features
-    const nursesQuery = User.find(query).select(
-      '-password -passwordResetCode -passwordResetExpires'
-    );
-
-    const apiFeatures = new ApiFeatures(nursesQuery, req.query)
-      .filter()
-      .search()
-      .limitFields()
-      .sort();
-
-    // 4. Execute the final query
-    const nurses = await apiFeatures.query;
-
-    // 5. Handle empty results
-    if (!nurses || nurses.length === 0) {
-      return res.status(200).json({
-        status: 'success',
-        results: 0,
-        message: 'No nurses found in this department',
-        data: [],
-      });
+    // 1. Validate specialty exists
+    const specialtyExists = await mongoose
+      .model('Specialty')
+      .exists({ _id: specialtyId });
+    if (!specialtyExists) {
+      return next(new ApiError('Specialty not found', 404));
     }
 
-    // 6. Successful response
+    // 2. Build and execute query
+    const nurses = await User.find({
+      role: 'nurse',
+      specialty: specialtyId,
+      isActive: true,
+    })
+      .select('-password -passwordResetCode -passwordResetExpires')
+      .populate('specialty', 'name description')
+      .lean();
+
+    // 3. Handle response
     res.status(200).json({
       status: 'success',
       results: nurses.length,
-      department: department.name,
-      data: {
-        nurses,
-        // Include pagination if available
-        pagination: apiFeatures.paginationResult,
-      },
+      data: nurses,
     });
-  } catch (err) {
-    // Handle any unexpected errors
-    console.error('Error fetching nurses:', err);
-    res.status(500).json({
-      status: 'error',
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? err : undefined,
-    });
+  } catch (error) {
+    console.error('Error fetching nurses by specialty:', error);
+    next(new ApiError('Failed to fetch nurses', 500));
   }
 });
 
@@ -489,4 +448,36 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res, next) => {
   const token = createToken(user._id);
 
   res.status(200).json({ data: user, token });
+});
+
+exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
+  try {
+    const { departmentId } = req.params;
+
+    // 1. Validate specialty exists
+    const specialtyExists = await specialties.exists({ _id: departmentId });
+    if (!specialtyExists) {
+      return next(new ApiError('Specialty not found', 404));
+    }
+
+    // 2. Build and execute query
+    const nurses = await User.find({
+      role: 'nurse',
+      specialty: departmentId,
+      isActive: true,
+    })
+      .select('-password -passwordResetCode -passwordResetExpires')
+      .populate('specialty', 'name description')
+      .lean();
+
+    // 3. Handle response
+    res.status(200).json({
+      status: 'success',
+      results: nurses.length,
+      data: nurses,
+    });
+  } catch (error) {
+    console.error('Error fetching nurses by specialty:', error);
+    next(new ApiError('Failed to fetch nurses', 500));
+  }
 });
