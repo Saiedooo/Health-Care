@@ -16,6 +16,62 @@ exports.getAllRequests = asyncHandler(async (req, res, next) => {
 
 // @creater Request
 
+exports.createRequest = async (req, res) => {
+  try {
+    const { description, nurseId } = req.body;
+
+    // إنشاء الطلب
+    const request = await Request.create({
+      patient: req.User.id,
+      description,
+      nurse: nurseId || null,
+    });
+
+    // إذا تم تحديد ممرض معين
+    if (nurseId) {
+      const nurse = await User.findById(nurseId);
+      if (!nurse || nurse.role !== 'nurse') {
+        return res.status(400).json({ error: 'Invalid nurse ID' });
+      }
+
+      // إرسال إشعار للممرض المحدد
+      if (req.app.locals.activeNurses.has(nurseId)) {
+        const ws = req.app.locals.activeNurses.get(nurseId);
+        ws.send(
+          JSON.stringify({
+            type: 'NEW_REQUEST',
+            data: {
+              requestId: Request._id,
+              patientName: `${req.User.firstName} ${req.User.lastName}`,
+              description: Request.description,
+              createdAt: Request.createdAt,
+            },
+          })
+        );
+      }
+    } else {
+      // إرسال إشعار لجميع الممرضين (إذا لم يتم تحديد ممرض معين)
+      req.app.locals.activeNurses.forEach((ws, id) => {
+        ws.send(
+          JSON.stringify({
+            type: 'NEW_GENERAL_REQUEST',
+            data: {
+              requestId: Request._id,
+              patientName: `${req.User.firstName} ${req.User.lastName}`,
+              description: Request.description,
+              createdAt: Request.createdAt,
+            },
+          })
+        );
+      });
+    }
+
+    res.status(201).json(request);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // exports.createRequest = asyncHandler(async (req, res, next) => {
 //   const { patientId, departmentId, description } = req.body;
 

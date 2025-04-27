@@ -83,7 +83,9 @@ app.use(globalError);
 
 const PORT = process.env.PORT || 4000;
 
-server.listen(4000, () => console.log('Server running on port 3000'));
+app.locals.wss = wss;
+app.locals.activeNurses = activeNurses;
+server.listen(PORT, () => console.log('Server running on port 4000'));
 
 // const server = app.listen(PORT, () => {
 //   console.log(`Server is Running on ${PORT}....`);

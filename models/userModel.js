@@ -17,6 +17,9 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    description: {
+      type: String,
+    },
     phoneNumber: String, //phone
     personalPhoto: String, // proFileImg
     password: {
@@ -56,7 +59,7 @@ const userSchema = new mongoose.Schema(
       //   return this.role === 'nurse';
       // },
     },
-    specialties: {
+    specialty: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Specialty',
     },
