@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
-const Specialties = require('../models/specialtiesModel');
+const Specialties = require('../models/specialtyModel');
 const ApiError = require('../utils/apiError');
 
 // Image processing middleware
@@ -26,7 +26,7 @@ const ApiError = require('../utils/apiError');
 // private
 
 exports.createSpecialities = asyncHandler(async (req, res) => {
-  const { name, description } = req.body;
+  // const { name, description } = req.body;
 
   const newSpecialiteis = new Specialties(req.body);
 

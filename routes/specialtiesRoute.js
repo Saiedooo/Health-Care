@@ -1,11 +1,14 @@
 const express = require('express');
-const { uploadUserImages } = require('../middleware/uploadImageMiddleware');
+const {
+  uploadUserImages,
+  processAndUpload,
+} = require('../middleware/uploadImageMiddleware');
 
 const router = express.Router();
 
 const {
   createSpecialities,
-  resizeImage,
+
   getSpecialitiesById,
   GetAllSpecialities,
   updateSpecialitiesById,
@@ -17,19 +20,15 @@ const authService = require('../services/authServices');
 router.use(authService.protect);
 
 router.use(authService.allowedTo('admin'));
-router.route('/').get(GetAllSpecialities).post(
-  // uploadUserImages({ required: false }), resizeImage,
-  createSpecialities
-);
+router
+  .route('/')
+  .get(GetAllSpecialities)
+  .post(uploadUserImages, processAndUpload, createSpecialities);
 
 router
   .route('/:id')
   .get(getSpecialitiesById)
-  .put(
-    // uploadUserImages({ required: false }),
-    // resizeImage,
-    updateSpecialitiesById
-  )
+  .put(uploadUserImages, processAndUpload, updateSpecialitiesById)
   .delete(deleteSpecialitiesById);
 
 module.exports = router;

@@ -56,12 +56,10 @@ const userSchema = new mongoose.Schema(
       //   return this.role === 'nurse';
       // },
     },
-    specialties: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Specialty',
-      },
-    ],
+    specialties: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Specialty',
+    },
 
     isActive: {
       type: Boolean,

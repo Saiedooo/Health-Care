@@ -9,6 +9,9 @@ const specialtySchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  personalPhoto: {
+    type: String,
+  },
 });
 
 const Specialty = mongoose.model('Specialty', specialtySchema);
