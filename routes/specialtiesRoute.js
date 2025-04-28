@@ -17,9 +17,9 @@ const {
 
 const authService = require('../services/authServices');
 
-router.use(authService.protect);
+// router.use(authService.protect);
 
-router.use(authService.allowedTo('admin'));
+// router.use(authService.allowedTo('admin'));
 router
   .route('/')
   .get(GetAllSpecialities)
