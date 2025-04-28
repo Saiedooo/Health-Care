@@ -59,7 +59,7 @@ exports.getSpecialitiesById = asyncHandler(async (req, res) => {
 exports.updateSpecialitiesById = asyncHandler(async (req, res, next) => {
   const { name, description } = req.body;
 
-  const specialities = await specialities.findByIdAndUpdate(
+  const specialities = await Specialties.findByIdAndUpdate(
     req.params.id,
 
     req.body,
@@ -77,7 +77,7 @@ exports.updateSpecialitiesById = asyncHandler(async (req, res, next) => {
 
 // Delete a user by ID
 exports.deleteSpecialitiesById = asyncHandler(async (req, res) => {
-  const specialities = await specialities.findByIdAndDelete(req.params.id);
+  const specialities = await Specialties.findByIdAndDelete(req.params.id);
   if (!specialities) {
     return next(
       new ApiError(`No Specialities for this id ${req.params.id}`, 404)
