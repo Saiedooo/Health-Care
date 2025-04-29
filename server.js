@@ -72,8 +72,8 @@ app.use('/api/v1/activation', adminActivateRoute);
 app.use('/api/v1/department', departmentRoute);
 app.use('/api/v1/specialties', specialtiesRoute);
 app.use('/api/v1/request', requestRoute);
-app.use('/api/v1/review', reviewRoute);
-app.use('/api/v1/review', reviewRoute);
+app.use('/api/v1/reviews', reviewRoute);
+// app.use('/api/v1/review', reviewRoute);
 
 // Db connection
 dbConnection();

@@ -15,14 +15,26 @@ const Review = require('../models/reviewModel');
 // };
 
 // Create department handler
-exports.createReview = asyncHandler(async (req, res) => {
-  const Reviews = await Review.create(req.body);
+exports.createReview = asyncHandler(async (req, res, next) => {
+  // Get nurse ID from params
+  const nurseId = req.params.nurseId;
+
+  // Prepare review data
+  const reviewData = {
+    title: req.body.title,
+    ratings: req.body.ratings || 0, // Default to 0 if not provided
+    user: req.body.user,
+    nurse: nurseId, // Add nurse ID from params
+  };
+
+  // Create review
+  const review = await Review.create(reviewData);
+
   res.status(201).json({
     status: 'success',
-    data: Reviews,
+    data: review,
   });
 });
-
 // Get all users
 // @admin
 exports.getReviews = asyncHandler(async (req, res, next) => {

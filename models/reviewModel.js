@@ -7,21 +7,29 @@ const reviewSchema = new mongoose.Schema(
     },
     ratings: {
       type: Number,
-      min: [1, 'Min ratings value is 1.0'],
+      min: [0, 'Min ratings value is 0'],
       max: [5, 'Max ratings value is 5.0'],
-      required: [true, 'review ratings required'],
+      default: 0,
     },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: [true, 'Review must belong to user'],
     },
+    nurse: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'Review must belong to a nurse'],
+    },
   },
   { timestamps: true }
 );
 
 reviewSchema.pre(/^find/, function (next) {
-  this.populate({ path: 'user', select: 'name' });
+  this.populate({ path: 'user', select: 'name' }).populate({
+    path: 'nurse',
+    select: 'firstName lastName',
+  });
   next();
 });
 

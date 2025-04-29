@@ -452,10 +452,10 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res, next) => {
 
 exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
   try {
-    const { departmentId } = req.params;
+    const { specialtyId } = req.params;
 
     // 1. Validate specialty exists
-    const specialtyExists = await specialties.exists({ _id: departmentId });
+    const specialtyExists = await specialties.exists({ _id: specialtyId });
     if (!specialtyExists) {
       return next(new ApiError('Specialty not found', 404));
     }
@@ -463,7 +463,7 @@ exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
     // 2. Build and execute query
     const nurses = await User.find({
       role: 'nurse',
-      specialty: departmentId,
+      specialty: specialtyId,
       isActive: true,
     })
       .select('-password -passwordResetCode -passwordResetExpires')

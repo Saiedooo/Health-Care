@@ -50,7 +50,7 @@ router.get(
 router.get('/nurses/:id', getNurseById);
 
 router.get(
-  '/department/:departmentId',
+  '/specialty/:specialtyId',
   // authService.allowedTo('patient', 'admin', 'nurse'),
   getNursesByDepartment
 );
