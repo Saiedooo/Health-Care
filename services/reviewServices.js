@@ -82,3 +82,33 @@ exports.deleteReviewById = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json({ message: 'Review Deleted Succefully' });
 });
+
+// Get all reviews for a specific nurse
+exports.getNurseReviews = asyncHandler(async (req, res, next) => {
+  const nurseId = req.params.nurseId;
+
+  // Find all reviews for the specified nurse
+  const reviews = await Review.find({ nurse: nurseId })
+    .populate({
+      path: 'user',
+      select: 'firstName lastName personalPhoto',
+    })
+    .populate({
+      path: 'nurse',
+      select: 'firstName lastName personalPhoto',
+    });
+
+  // Calculate average rating
+  const totalRatings = reviews.reduce(
+    (sum, review) => sum + (review.ratings || 0),
+    0
+  );
+  const averageRating = reviews.length > 0 ? totalRatings / reviews.length : 0;
+
+  res.status(200).json({
+    status: 'success',
+    results: reviews.length,
+    averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+    data: reviews,
+  });
+});

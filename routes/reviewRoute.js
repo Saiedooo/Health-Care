@@ -8,6 +8,7 @@ const {
   updateReviewById,
   deleteReviewById,
   createReview,
+  getNurseReviews,
 } = require('../services/reviewServices');
 
 const authService = require('../services/authServices');
@@ -16,8 +17,9 @@ const authService = require('../services/authServices');
 // router.use(authService.protect);
 // router.use(authService.allowedTo('patient', 'admin'));
 
-// Create review for specific nurse
+// Nurse-specific review routes
 router.post('/nurse/:nurseId', createReview);
+router.get('/nurse/:nurseId', getNurseReviews);
 
 // General review routes
 router.route('/').get(getReviews).post(createReview);
