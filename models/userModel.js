@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    description: {
+    aboutMe: {
       type: String,
     },
     phoneNumber: String, //phone
