@@ -18,8 +18,8 @@ const authService = require('../services/authServices');
 // router.use(authService.allowedTo('patient', 'admin'));
 
 // Nurse-specific review routes
-router.post('/nurse/:nurseId', createReview);
-router.get('/nurse/:nurseId', getNurseReviews);
+router.post('/nurse/:nurseId', createReview); //create
+router.get('/nurse/:nurseId', getNurseReviews); // get
 
 // General review routes
 router.route('/').get(getReviews).post(createReview);

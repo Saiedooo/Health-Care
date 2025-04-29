@@ -66,7 +66,7 @@ router
 router
   .route('/:id')
   .get(getUserValidator, getUserbyId)
-  .put(updateUserValidator, updateUserById)
+  .put(uploadUserImages, processAndUpload, updateUserValidator, updateUserById)
   .delete(deleteUserValidator, deleteUserById);
 
 module.exports = router;
