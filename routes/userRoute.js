@@ -4,6 +4,8 @@ const router = express.Router();
 const {
   uploadUserImages,
   processAndUpload,
+  uploadSingleImage,
+  processImage,
 } = require('../middleware/uploadImageMiddleware');
 
 const {
@@ -37,23 +39,19 @@ const authService = require('../services/authServices');
 // User profile routes
 router.get('/getMe', getLoggedUserData);
 router.put('/changeMyPassword', updateLoggedUserPassword);
-router.put('/updateMe', updateUserLoggedValidator, updateLoggedUserData);
-router.delete('/deleteMe', deleteLoggedUserData); //route + endpoint
-
-// Nurse routes - placed before parameterized routes
-router.get(
-  '/nurses',
-  // authService.allowedTo('patient', 'admin', 'nurse'),
-  getAllNurses
+router.put(
+  '/updateMe',
+  uploadSingleImage('personalPhoto'),
+  processImage,
+  updateUserLoggedValidator,
+  updateLoggedUserData
 );
+router.delete('/deleteMe', deleteLoggedUserData);
 
+// Nurse routes
+router.get('/nurses', getAllNurses);
 router.get('/nurses/:id', getNurseById);
-
-router.get(
-  '/specialty/:specialtyId',
-  // authService.allowedTo('patient', 'admin', 'nurse'),
-  getNursesByDepartment
-);
+router.get('/specialty/:specialtyId', getNursesByDepartment);
 
 // Admin-only routes
 // router.use(authService.allowedTo('admin'));
@@ -66,7 +64,12 @@ router
 router
   .route('/:id')
   .get(getUserValidator, getUserbyId)
-  .put(uploadUserImages, processAndUpload, updateUserValidator, updateUserById)
+  .put(
+    uploadSingleImage('personalPhoto'),
+    processImage,
+    updateUserValidator,
+    updateUserById
+  )
   .delete(deleteUserValidator, deleteUserById);
 
 module.exports = router;
