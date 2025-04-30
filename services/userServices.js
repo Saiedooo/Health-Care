@@ -346,10 +346,16 @@ exports.updateUserById = asyncHandler(async (req, res, next) => {
     (key) => updatedFields[key] === undefined && delete updatedFields[key]
   );
 
+  // Log the update operation
+  console.log('Updating user with fields:', updatedFields);
+
   const updatedUser = await User.findByIdAndUpdate(
     req.params.id,
-    updatedFields,
-    { new: true }
+    { $set: updatedFields },
+    {
+      new: true,
+      runValidators: true,
+    }
   );
 
   if (!updatedUser) {
