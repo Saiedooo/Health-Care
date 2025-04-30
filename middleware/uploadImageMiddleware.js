@@ -4,6 +4,10 @@ const { v4: uuidv4 } = require('uuid');
 const { put } = require('@vercel/blob');
 const ApiError = require('../utils/apiError');
 
+// Vercel Blob token
+const BLOB_TOKEN =
+  'vercel_blob_rw_Svluq1Z91NHBLkYR_lpPD3Had7F1qQONQNZ90XtmCWuiWAn';
+
 // Configure multer for memory storage
 const multerStorage = multer.memoryStorage();
 
@@ -41,9 +45,9 @@ exports.processImage = async (req, res, next) => {
       return next();
     }
 
-    console.log('Processing file:', req.file.originalname);
-    console.log('File mimetype:', req.file.mimetype);
-    console.log('File size:', req.file.size);
+    // console.log('Processing file:', req.file.originalname);
+    // console.log('File mimetype:', req.file.mimetype);
+    // console.log('File size:', req.file.size);
 
     // Generate unique filename
     const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
@@ -61,29 +65,11 @@ exports.processImage = async (req, res, next) => {
 
     console.log('Image processed successfully');
 
-    // For development/testing, save locally if VERCEL_ENV is not set
-    if (!process.env.VERCEL_ENV) {
-      const fs = require('fs');
-      const path = require('path');
-
-      // Create uploads directory if it doesn't exist
-      const uploadDir = path.join(process.cwd(), 'uploads', 'users');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      // Save locally
-      const localPath = path.join(uploadDir, filename);
-      fs.writeFileSync(localPath, processedBuffer);
-      req.body[req.file.fieldname] = `/uploads/users/${filename}`;
-      console.log('Image saved locally:', localPath);
-      return next();
-    }
-
-    // Upload to Vercel Blob if in production
+    // Upload to Vercel Blob with token
     console.log('Uploading to Vercel Blob...');
     const { url } = await put(filename, processedBuffer, {
       access: 'public',
+      token: BLOB_TOKEN,
     });
 
     console.log('Upload successful, URL:', url);
@@ -130,25 +116,10 @@ exports.processAndUpload = async (req, res, next) => {
         .jpeg({ quality: 90 })
         .toBuffer();
 
-      // For development/testing
-      if (!process.env.VERCEL_ENV) {
-        const fs = require('fs');
-        const path = require('path');
-
-        const uploadDir = path.join(process.cwd(), 'uploads', 'users');
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const localPath = path.join(uploadDir, filename);
-        fs.writeFileSync(localPath, processedBuffer);
-        req.body[fieldName] = `/uploads/users/${filename}`;
-        return;
-      }
-
-      // Upload to Vercel Blob if in production
+      // Upload to Vercel Blob with token
       const { url } = await put(filename, processedBuffer, {
         access: 'public',
+        token: BLOB_TOKEN,
       });
 
       req.body[fieldName] = url;

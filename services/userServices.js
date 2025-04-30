@@ -336,31 +336,19 @@ exports.getNurseById = asyncHandler(async (req, res, next) => {
 });
 // Update a user by ID
 exports.updateUserById = asyncHandler(async (req, res, next) => {
-  const {
-    firstName,
-    lastName,
-    password,
-    role,
-    phoneNumber,
-    address,
-    isActive,
-    departmentId,
-    email,
-  } = req.body;
+  // Get all fields from req.body
+  const updatedFields = {
+    ...req.body,
+  };
+
+  // Remove undefined fields
+  Object.keys(updatedFields).forEach(
+    (key) => updatedFields[key] === undefined && delete updatedFields[key]
+  );
 
   const updatedUser = await User.findByIdAndUpdate(
     req.params.id,
-    {
-      firstName,
-      lastName,
-      password,
-      role,
-      phoneNumber,
-      address,
-      isActive,
-      departmentId,
-      email,
-    },
+    updatedFields,
     { new: true }
   );
 
@@ -368,7 +356,10 @@ exports.updateUserById = asyncHandler(async (req, res, next) => {
     return next(new ApiError(`No user for this id ${req.params.id}`, 404));
   }
 
-  res.status(200).json(updatedUser);
+  res.status(200).json({
+    status: 'success',
+    data: updatedUser,
+  });
 });
 
 // Delete a user by ID
