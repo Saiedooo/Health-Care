@@ -4,12 +4,37 @@ const { v4: uuidv4 } = require('uuid');
 const { put } = require('@vercel/blob');
 const ApiError = require('../utils/apiError');
 
-// Vercel Blob token
-const BLOB_TOKEN =
-  'vercel_blob_rw_Svluq1Z91NHBLkYR_lpPD3Had7F1qQONQNZ90XtmCWuiWAn';
-
 // Configure multer for memory storage
 const multerStorage = multer.memoryStorage();
+
+// Helper function to get blob token
+const getBlobToken = () => {
+  // Try to get token from environment variables first
+  const envToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (envToken) return envToken;
+
+  // Fallback token for development (only if env token is not available)
+  if (process.env.NODE_ENV === 'development') {
+    return 'vercel_blob_rw_Svluq1Z91NHBLkYR_lpPD3Had7F1qQONQNZ90XtmCWuiWAn';
+  }
+
+  throw new Error('Blob token not configured');
+};
+
+// Helper function to upload to blob storage
+const uploadToBlob = async (filename, buffer) => {
+  try {
+    const token = getBlobToken();
+    const { url } = await put(filename, buffer, {
+      access: 'public',
+      token: token,
+    });
+    return url;
+  } catch (error) {
+    console.error('Blob upload error:', error);
+    throw new Error(`Failed to upload to blob storage: ${error.message}`);
+  }
+};
 
 // Configure multer filter
 const multerFilter = (req, file, cb) => {
@@ -66,11 +91,8 @@ exports.processImage = async (req, res, next) => {
     console.log('Image processed successfully');
 
     // Upload to Vercel Blob with token
-    console.log('Uploading to Vercel Blob...');
-    const { url } = await put(filename, processedBuffer, {
-      access: 'public',
-      token: BLOB_TOKEN,
-    });
+    // console.log('Uploading to Vercel Blob...');
+    const url = await uploadToBlob(filename, processedBuffer);
 
     console.log('Upload successful, URL:', url);
     req.body[req.file.fieldname] = url;
@@ -117,10 +139,7 @@ exports.processAndUpload = async (req, res, next) => {
         .toBuffer();
 
       // Upload to Vercel Blob with token
-      const { url } = await put(filename, processedBuffer, {
-        access: 'public',
-        token: BLOB_TOKEN,
-      });
+      const url = await uploadToBlob(filename, processedBuffer);
 
       req.body[fieldName] = url;
     });
