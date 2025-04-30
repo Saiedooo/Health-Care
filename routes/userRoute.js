@@ -64,12 +64,7 @@ router
 router
   .route('/:id')
   .get(getUserValidator, getUserbyId)
-  .put(
-    uploadSingleImage('personalPhoto'),
-    processImage,
-    updateUserValidator,
-    updateUserById
-  )
+  .put(uploadUserImages, processAndUpload, updateUserValidator, updateUserById)
   .delete(deleteUserValidator, deleteUserById);
 
 module.exports = router;

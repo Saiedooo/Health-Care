@@ -66,19 +66,11 @@ exports.uploadSingleImage = (fieldName) => upload.single(fieldName);
 exports.processImage = async (req, res, next) => {
   try {
     if (!req.file) {
-      console.log('No file uploaded');
       return next();
     }
 
-    // console.log('Processing file:', req.file.originalname);
-    // console.log('File mimetype:', req.file.mimetype);
-    // console.log('File size:', req.file.size);
-
-    // Generate unique filename
     const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-    console.log('Generated filename:', filename);
 
-    // Process image with Sharp
     const processedBuffer = await sharp(req.file.buffer)
       .resize(500, 500, {
         fit: 'contain',
@@ -88,20 +80,19 @@ exports.processImage = async (req, res, next) => {
       .jpeg({ quality: 90 })
       .toBuffer();
 
-    console.log('Image processed successfully');
+    // Upload to Vercel Blob
+    const token = getBlobToken();
+    const { url } = await put(filename, processedBuffer, {
+      access: 'public',
+      token: token,
+    });
 
-    // Upload to Vercel Blob with token
-    // console.log('Uploading to Vercel Blob...');
-    const url = await uploadToBlob(filename, processedBuffer);
-
-    console.log('Upload successful, URL:', url);
+    // Set the URL in the request body using the original field name
     req.body[req.file.fieldname] = url;
+
     next();
   } catch (error) {
-    console.error('Detailed error in processImage:', error);
-    if (error.stack) {
-      console.error('Error stack:', error.stack);
-    }
+    console.error('Image processing error:', error);
     next(new ApiError(`Error processing image: ${error.message}`, 400));
   }
 };
