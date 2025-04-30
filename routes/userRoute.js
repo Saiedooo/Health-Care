@@ -41,8 +41,8 @@ router.get('/getMe', getLoggedUserData);
 router.put('/changeMyPassword', updateLoggedUserPassword);
 router.put(
   '/updateMe',
-  uploadSingleImage('personalPhoto'),
-  processImage,
+  uploadUserImages,
+  processAndUpload,
   updateUserLoggedValidator,
   updateLoggedUserData
 );

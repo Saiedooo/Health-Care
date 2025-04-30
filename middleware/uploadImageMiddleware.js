@@ -108,16 +108,17 @@ exports.uploadUserImages = upload.fields([
 exports.processAndUpload = async (req, res, next) => {
   try {
     if (!req.files) {
-      console.log('No files uploaded for multiple upload');
       return next();
     }
 
     // Process each file type if it exists
     const processPromises = Object.keys(req.files).map(async (fieldName) => {
       const file = req.files[fieldName][0];
-      console.log(`Processing ${fieldName}:`, file.originalname);
 
-      const filename = `user-${uuidv4()}-${Date.now()}-${fieldName}.jpeg`;
+      // Generate unique filename with timestamp and UUID
+      const timestamp = Date.now();
+      const uniqueId = uuidv4();
+      const filename = `user-${uniqueId}-${timestamp}-${fieldName}.jpeg`;
 
       // Process image with Sharp
       const processedBuffer = await sharp(file.buffer)
@@ -130,18 +131,20 @@ exports.processAndUpload = async (req, res, next) => {
         .toBuffer();
 
       // Upload to Vercel Blob with token
-      const url = await uploadToBlob(filename, processedBuffer);
+      const token = getBlobToken();
+      const { url } = await put(filename, processedBuffer, {
+        access: 'public',
+        token: token,
+      });
 
+      // Store the URL in req.body
       req.body[fieldName] = url;
     });
 
     await Promise.all(processPromises);
     next();
   } catch (error) {
-    console.error('Detailed error in processAndUpload:', error);
-    if (error.stack) {
-      console.error('Error stack:', error.stack);
-    }
+    console.error('Image processing error:', error);
     next(new ApiError(`Error processing images: ${error.message}`, 400));
   }
 };
