@@ -15,26 +15,47 @@ const Review = require('../models/reviewModel');
 // };
 
 // Create department handler
-exports.createReview = asyncHandler(async (req, res, next) => {
-  // Get nurse ID from params
-  const nurseId = req.params.nurseId;
+// exports.createReview = asyncHandler(async (req, res, next) => {
+//   // Get nurse ID from params
+//   const nurseId = req.params.nurseId;
 
-  // Prepare review data
-  const reviewData = {
-    title: req.body.title,
-    ratings: req.body.ratings || 0, // Default to 0 if not provided
-    user: req.body.user,
-    nurse: nurseId, // Add nurse ID from params
-  };
+//   // Prepare review data
+//   const reviewData = {
+//     title: req.body.title,
+//     ratings: req.body.ratings || 0, // Default to 0 if not provided
+//     user: req.body.user,
+//     nurse: nurseId, // Add nurse ID from params
+//   };
 
-  // Create review
-  const review = await Review.create(reviewData);
+//   // Create review
+//   const review = await Review.create(reviewData);
 
-  res.status(201).json({
-    status: 'success',
-    data: review,
-  });
-});
+//   res.status(201).json({
+//     status: 'success',
+//     data: review,
+//   });
+// });
+
+exports.createReview = async (req, res, next) => {
+  try {
+    // Set the user and nurse fields from the request
+    req.body.user = req.user._id; // <-- logged-in user
+    req.body.nurse = req.params.nurseId; // <-- nurse being reviewed
+
+    const review = await Review.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: review,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+};
+
 // Get all users
 // @admin
 exports.getReviews = asyncHandler(async (req, res, next) => {

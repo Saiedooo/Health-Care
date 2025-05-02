@@ -18,7 +18,7 @@ const {
   updateLoggedUserData,
   updateLoggedUserPassword,
   deleteLoggedUserData,
-  getNursesByDepartment,
+  getNursesBySpecialty,
   getAllNurses,
   getNurseById,
 } = require('../services/userServices');
@@ -51,7 +51,7 @@ router.delete('/deleteMe', deleteLoggedUserData);
 // Nurse routes
 router.get('/nurses', getAllNurses);
 router.get('/nurses/:id', getNurseById);
-router.get('/specialty/:specialtyId', getNursesByDepartment);
+router.get('/specialty/:specialtyId', getNursesBySpecialty);
 
 // Admin-only routes
 // router.use(authService.allowedTo('admin'));

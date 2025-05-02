@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema(
       //   return this.role === 'patient' || this.role === 'nurse';
       // },
     },
+    personalPhoto: {
+      type: String,
+    },
     businessCardPhoto: {
       //nursingLicense
       type: String,
@@ -62,6 +65,9 @@ const userSchema = new mongoose.Schema(
     specialty: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Specialty',
+      required: function () {
+        return this.role === 'nurse';
+      },
     },
 
     isActive: {

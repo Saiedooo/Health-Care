@@ -4,6 +4,7 @@ const sharp = require('sharp');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const createToken = require('../utils/createToken');
+const mongoose = require('mongoose');
 
 const { uploadSingleImage } = require('../middleware/uploadImageMiddleware');
 const ApiError = require('../utils/apiError');
@@ -140,34 +141,65 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
 exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
     const { specialtyId } = req.params;
+    console.log('Received specialtyId:', specialtyId);
 
-    // 1. Validate specialty exists
-    const specialtyExists = await mongoose
-      .model('Specialty')
-      .exists({ _id: specialtyId });
-    if (!specialtyExists) {
-      return next(new ApiError('Specialty not found', 404));
+    // 1. Check if specialty ID is valid
+    if (!mongoose.Types.ObjectId.isValid(specialtyId)) {
+      console.log('Invalid specialty ID format');
+      return next(new ApiError('معرف التخصص غير صحيح', 400));
     }
 
-    // 2. Build and execute query
+    // 2. Check if specialty exists
+    const Specialty = await specialties.findById(specialtyId);
+    console.log('Found specialty:', Specialty);
+    if (!Specialty) {
+      console.log('Specialty not found in database');
+      return next(new ApiError('لم يتم العثور على التخصص', 404));
+    }
+
+    // 3. Check all nurses first
+    const allNurses = await User.find({ role: 'nurse' });
+    console.log('Total nurses in system:', allNurses.length);
+
+    // 4. Check nurses with this specialty
+    const nursesWithSpecialty = await User.find({
+      role: 'nurse',
+      specialty: specialtyId,
+    });
+    console.log('Nurses with this specialty:', nursesWithSpecialty.length);
+
+    // 5. Check active nurses with this specialty
+    const activeNurses = await User.find({
+      role: 'nurse',
+      specialty: specialtyId,
+      isActive: true,
+    });
+    console.log('Active nurses with this specialty:', activeNurses.length);
+
+    // 6. Final query with all conditions
     const nurses = await User.find({
       role: 'nurse',
       specialty: specialtyId,
       isActive: true,
     })
       .select('-password -passwordResetCode -passwordResetExpires')
-      .populate('specialty', 'name description')
-      .lean();
+      .populate('specialty', 'name '); //description
 
-    // 3. Handle response
+    console.log('Final query results:', nurses.length);
+
     res.status(200).json({
       status: 'success',
       results: nurses.length,
       data: nurses,
+      debug: {
+        totalNurses: allNurses.length,
+        nursesWithSpecialty: nursesWithSpecialty.length,
+        activeNurses: activeNurses.length,
+      },
     });
   } catch (error) {
-    console.error('Error fetching nurses by specialty:', error);
-    next(new ApiError('Failed to fetch nurses', 500));
+    console.error('Error details:', error);
+    next(new ApiError('حدث خطأ أثناء جلب الممرضات', 500));
   }
 });
 
@@ -447,34 +479,68 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: user, token });
 });
 
-exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
+exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
     const { specialtyId } = req.params;
 
-    // 1. Validate specialty exists
-    const specialtyExists = await specialties.exists({ _id: specialtyId });
-    if (!specialtyExists) {
-      return next(new ApiError('Specialty not found', 404));
+    // 1. التحقق من صحة ID التخصص
+    if (!mongoose.Types.ObjectId.isValid(specialtyId)) {
+      return next(new ApiError('معرف التخصص غير صحيح', 400));
     }
 
-    // 2. Build and execute query
+    // 2. التحقق من وجود التخصص في قاعدة البيانات
+    const Specialty = await specialties.findById(specialtyId);
+    if (!Specialty) {
+      return next(new ApiError('لم يتم العثور على التخصص', 404));
+    }
+
+    // 3. جلب الممرضات
     const nurses = await User.find({
       role: 'nurse',
       specialty: specialtyId,
       isActive: true,
     })
       .select('-password -passwordResetCode -passwordResetExpires')
-      .populate('specialty', 'name description')
-      .lean();
+      .populate('specialty', 'name description');
 
-    // 3. Handle response
     res.status(200).json({
       status: 'success',
       results: nurses.length,
       data: nurses,
     });
   } catch (error) {
-    console.error('Error fetching nurses by specialty:', error);
-    next(new ApiError('Failed to fetch nurses', 500));
+    console.error('تفاصيل الخطأ:', error);
+    next(new ApiError('حدث خطأ أثناء جلب الممرضات', 500));
   }
 });
+// exports.getNursesByDepartment = asyncHandler(async (req, res, next) => {
+//   try {
+//     const { specialtyId } = req.params;
+
+//     // 1. Validate specialty exists
+//     const specialtyExists = await specialties.exists({ _id: specialtyId });
+//     if (!specialtyExists) {
+//       return next(new ApiError('Specialty not found', 404));
+//     }
+
+//     // 2. Build and execute query
+//     const nurses = await User.find({
+//       role: 'nurse',
+//       specialty: specialtyId,
+//       isActive: true,
+//     })
+//       .select('-password -passwordResetCode -passwordResetExpires')
+//       .populate('specialty', 'name description')
+//       .lean();
+
+//     // 3. Handle response
+//     res.status(200).json({
+//       status: 'success',
+//       results: nurses.length,
+//       data: nurses,
+//     });
+//   } catch (error) {
+//     console.error('Error fetching nurses by specialty:', error);
+//     next(new ApiError('Failed to fetch nurses', 500));
+//   }
+// });
