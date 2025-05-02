@@ -11,6 +11,9 @@ const reviewSchema = new mongoose.Schema(
       max: [5, 'Max ratings value is 5.0'],
       default: 0,
     },
+    personalPhoto: {
+      type: String,
+    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
