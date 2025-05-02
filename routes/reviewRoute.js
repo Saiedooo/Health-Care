@@ -14,8 +14,8 @@ const {
 const authService = require('../services/authServices');
 
 // Apply protection to all routes
-// router.use(authService.protect);
-// router.use(authService.allowedTo('patient', 'admin'));
+router.use(authService.protect);
+router.use(authService.allowedTo('patient', 'admin'));
 
 // Nurse-specific review routes
 router.post('/nurse/:nurseId', createReview); //create
