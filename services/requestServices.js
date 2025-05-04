@@ -22,7 +22,7 @@ exports.recievedRequests = async (req, res) => {
 exports.requestAction = async (req, res) => {
   try {
     const { id, action } = req.params;
-    if (req.user.role !== 'nurse') {
+    if (req.user.role !== 'nurse' || req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
     }
     const request = await Request.findById(id).populate('patient');
