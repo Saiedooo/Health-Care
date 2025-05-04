@@ -11,6 +11,7 @@ const {
   requestAction,
 } = require('../services/requestServices');
 
+router.use(authService.protect);
 // GET /api/v1/request/received
 router.get('/received', recievedRequests);
 
@@ -18,7 +19,6 @@ router.get('/received', recievedRequests);
 router.put('/:id/:action', requestAction);
 
 // Protect all routes
-router.use(authService.protect);
 
 // Routes for patients (create request)
 router
