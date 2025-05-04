@@ -72,7 +72,7 @@ exports.processImage = async (req, res, next) => {
     const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
 
     const processedBuffer = await sharp(req.file.buffer)
-      .resize(500, 500, {
+      .resize(800, 800, {
         fit: 'contain',
         background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
@@ -122,7 +122,7 @@ exports.processAndUpload = async (req, res, next) => {
 
       // Process image with Sharp
       const processedBuffer = await sharp(file.buffer)
-        .resize(500, 500, {
+        .resize(800, 800, {
           fit: 'contain',
           background: { r: 255, g: 255, b: 255, alpha: 1 },
         })

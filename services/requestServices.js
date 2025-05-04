@@ -25,7 +25,7 @@ exports.requestAction = async (req, res) => {
     if (req.user.role !== 'nurse') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const request = await Request.findById(id);
+    const request = await Request.findById(id).populate('patient');
     if (!request) return res.status(404).json({ message: 'Request not found' });
     if (request.nurse.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not your request' });
@@ -34,6 +34,18 @@ exports.requestAction = async (req, res) => {
     else if (action === 'Rejected') request.status = 'Rejected';
     else return res.status(400).json({ message: 'Invalid action' });
     await request.save();
+
+    // Notify the patient if rejected
+    if (action === 'Rejected') {
+      const io = req.app.get('io');
+      if (io) {
+        io.to(request.patient._id.toString()).emit('request_rejected', {
+          requestId: request._id,
+          message: 'تم رفض طلبك من قبل الممرضة',
+        });
+      }
+    }
+
     res.json({ message: 'Request updated', data: request });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

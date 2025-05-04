@@ -20,6 +20,13 @@ const userSchema = new mongoose.Schema(
     aboutMe: {
       type: String,
     },
+    price: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+    },
     phoneNumber: String, //phone
     personalPhoto: String, // proFileImg
     password: {

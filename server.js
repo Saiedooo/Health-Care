@@ -58,6 +58,14 @@ notificationNamespace.on('connection', (socket) => {
   // You can add more events here as needed
 });
 
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  socket.on('join', (userId) => {
+    socket.join(userId); // user joins a room with their userId
+  });
+});
+
 //middlewares
 app.use(express.json());
 app.use(
