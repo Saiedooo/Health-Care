@@ -30,8 +30,8 @@ exports.requestAction = async (req, res) => {
     if (request.nurse.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not your request' });
     }
-    if (action === 'accept') request.status = 'accepted';
-    else if (action === 'reject') request.status = 'rejected';
+    if (action === 'Approved') request.status = 'Approved';
+    else if (action === 'Rejected') request.status = 'Rejected';
     else return res.status(400).json({ message: 'Invalid action' });
     await request.save();
     res.json({ message: 'Request updated', data: request });
