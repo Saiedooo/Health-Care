@@ -7,12 +7,23 @@ const Request = require('../models/requestModel');
 
 exports.sentNotifi = async (req, res) => {
   try {
-    if (req.user.role !== 'patient' || req.user.role !== 'nurse') {
+    if (req.user.role !== 'patient' && req.user.role !== 'nurse') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ patient: req.user._id }).populate(
-      'nurse'
-    );
+
+    let requests;
+    if (req.user.role === 'patient') {
+      // For patients: show requests they've sent
+      requests = await Request.find({ patient: req.user._id }).populate(
+        'nurse'
+      );
+    } else {
+      // For nurses: show requests they've received
+      requests = await Request.find({ nurse: req.user._id })
+        .populate('patient', 'firstName lastName personalPhoto')
+        .sort({ createdAt: -1 });
+    }
+
     res.json({ data: requests });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -25,7 +36,7 @@ exports.recievedRequests = async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
     const requests = await Request.find({ nurse: req.user._id })
-      .populate('patient', 'name personalPhoto')
+      .populate('patient', 'firstName lastName personalPhoto')
       .sort({ createdAt: -1 });
     res.json({ data: requests });
   } catch (err) {
