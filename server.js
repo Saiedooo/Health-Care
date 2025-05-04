@@ -17,10 +17,13 @@ const specialtiesRoute = require('./routes/specialtiesRoute');
 const requestRoute = require('./routes/requestRoute');
 const reviewRoute = require('./routes/reviewRoute');
 
+const { Server } = require('socket.io');
+
 dotenv.config({ path: '.env' });
 
 // Web Socket
 const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
 
 const wss = new WebSocket.Server({ server });
 
@@ -44,6 +47,15 @@ wss.on('connection', (ws, req) => {
       console.log(`Nurse ${nurseId} disconnected`);
     });
   }
+});
+
+// --- Socket.IO Notifications ---
+const notificationNamespace = io.of('/notifications');
+notificationNamespace.on('connection', (socket) => {
+  socket.on('join', (nurseId) => {
+    socket.join(nurseId);
+  });
+  // You can add more events here as needed
 });
 
 //middlewares

@@ -25,9 +25,9 @@ const RequestSchema = new mongoose.Schema({
       message: 'Nurse ID must reference a valid nurse user',
     },
   },
-  department: {
+  specialty: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
+    ref: 'Specialty',
   },
   requestDate: {
     type: Date,

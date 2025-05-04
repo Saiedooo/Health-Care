@@ -7,7 +7,15 @@ const {
   getRequestsForNurse,
   getAllRequests,
   deleteRequest,
+  recievedRequests,
+  requestAction,
 } = require('../services/requestServices');
+
+// GET /api/v1/request/received
+router.get('/received', recievedRequests);
+
+// PATCH /api/v1/request/:id/accept or /reject
+router.put('/:id/:action', requestAction);
 
 // Protect all routes
 router.use(authService.protect);
