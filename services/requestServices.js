@@ -5,6 +5,20 @@ const User = require('../models/userModel');
 
 const Request = require('../models/requestModel');
 
+exports.sentNotifi = async (req, res) => {
+  try {
+    if (req.user.role !== 'patient') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    const requests = await Request.find({ patient: req.user._id }).populate(
+      'nurse'
+    );
+    res.json({ data: requests });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
 exports.recievedRequests = async (req, res) => {
   try {
     if (req.user.role !== 'nurse') {

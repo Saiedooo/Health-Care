@@ -9,9 +9,12 @@ const {
   deleteRequest,
   recievedRequests,
   requestAction,
+  sentNotifi,
 } = require('../services/requestServices');
 
 router.use(authService.protect);
+
+router.get('/sent', sentNotifi);
 // GET /api/v1/request/received
 router.get('/received', recievedRequests);
 
