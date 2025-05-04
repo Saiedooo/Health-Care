@@ -5,49 +5,27 @@ const User = require('../models/userModel');
 
 const Request = require('../models/requestModel');
 
+// Only patients can see their sent requests
 exports.sentNotifi = async (req, res) => {
   try {
-    if (req.user.role !== 'patient' && req.user.role !== 'nurse') {
+    if (req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
     }
-
-    let requests;
-    if (req.user.role === 'patient') {
-      // For patients: show requests they've sent
-      requests = await Request.find({ patient: req.user._id }).populate(
-        'nurse'
-      );
-    } else {
-      // For nurses: show requests they've received
-      requests = await Request.find({ nurse: req.user._id })
-        .populate('patient', 'firstName lastName personalPhoto')
-        .sort({ createdAt: -1 });
-    }
-
+    // For patients: show requests they've sent
+    const requests = await Request.find({ patient: req.user._id }).populate(
+      'nurse'
+    );
     res.json({ data: requests });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-exports.recievedRequests = async (req, res) => {
-  try {
-    if (req.user.role !== 'nurse') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-    const requests = await Request.find({ nurse: req.user._id })
-      .populate('patient', 'firstName lastName personalPhoto')
-      .sort({ createdAt: -1 });
-    res.json({ data: requests });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-
+// Only nurses can accept/reject requests
 exports.requestAction = async (req, res) => {
   try {
     const { id, action } = req.params;
-    if (req.user.role !== 'nurse' || req.user.role !== 'patient') {
+    if (req.user.role !== 'nurse') {
       return res.status(403).json({ message: 'Access denied' });
     }
     const request = await Request.findById(id).populate('patient');
@@ -76,7 +54,19 @@ exports.requestAction = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
+exports.recievedRequests = async (req, res) => {
+  try {
+    if (req.user.role !== 'nurse') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    const requests = await Request.find({ nurse: req.user._id })
+      .populate('patient', 'firstName lastName personalPhoto')
+      .sort({ createdAt: -1 });
+    res.json({ data: requests });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
 exports.getAllRequests = asyncHandler(async (req, res, next) => {
   const AllRequests = await Request.find();
 
