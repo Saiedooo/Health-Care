@@ -7,7 +7,7 @@ const Request = require('../models/requestModel');
 
 exports.sentNotifi = async (req, res) => {
   try {
-    if (req.user.role !== 'patient') {
+    if (req.user.role !== 'patient' || req.user.role !== 'nurse') {
       return res.status(403).json({ message: 'Access denied' });
     }
     const requests = await Request.find({ patient: req.user._id }).populate(
