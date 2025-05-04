@@ -290,6 +290,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
     }
   }
   req.user = currentUser;
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized: No user found' });
+  }
   next();
 });
 
