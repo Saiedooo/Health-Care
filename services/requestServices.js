@@ -6,20 +6,20 @@ const User = require('../models/userModel');
 const Request = require('../models/requestModel');
 
 // Only patients can see their sent requests
-exports.sentNotifi = async (req, res) => {
-  try {
-    if (req.user.role !== 'patient') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-    // For patients: show requests they've sent
-    const requests = await Request.find({ patient: req.user._id }).populate(
-      'nurse'
-    );
-    res.json({ data: requests });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
+// exports.sentNotifi = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'patient') {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     // For patients: show requests they've sent
+//     const requests = await Request.find({ patient: req.user._id }).populate(
+//       'nurse'
+//     );
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
 
 // Only nurses can accept/reject requests
 exports.requestAction = async (req, res) => {
@@ -55,12 +55,45 @@ exports.requestAction = async (req, res) => {
   }
 };
 
-exports.recievedRequests = async (req, res) => {
+// exports.recievedRequests = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'patient') {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     const requests = await Request.find({ patient: req.user._id })
+//       .populate('patient', 'firstName lastName personalPhoto')
+//       .sort({ createdAt: -1 });
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// 😂😂😁😀
+
+// For patients: show requests they've sent
+exports.sentNotifi = async (req, res) => {
   try {
     if (req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ patient: req.user._id })
+    const requests = await Request.find({ patient: req.user._id }).populate(
+      'nurse'
+    );
+    res.json({ data: requests });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+// For nurses: show requests they've received
+exports.recievedRequests = async (req, res) => {
+  try {
+    if (req.user.role !== 'nurse') {
+      // <-- FIXED THIS LINE
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    const requests = await Request.find({ nurse: req.user._id }) // <-- FIXED THIS LINE
       .populate('patient', 'firstName lastName personalPhoto')
       .sort({ createdAt: -1 });
     res.json({ data: requests });
@@ -68,6 +101,8 @@ exports.recievedRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// 😀😀😀
 
 // exports.recievedRequestsPatients = async (req, res) => {
 //   try {
