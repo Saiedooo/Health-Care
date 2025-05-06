@@ -54,7 +54,8 @@ exports.requestAction = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-exports.recievedRequestsPatients = async (req, res) => {
+
+exports.recievedRequests = async (req, res) => {
   try {
     if (req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
@@ -68,19 +69,33 @@ exports.recievedRequestsPatients = async (req, res) => {
   }
 };
 
-exports.recievedRequestsNurses = async (req, res) => {
-  try {
-    if (req.user.role !== 'nurse') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-    const requests = await Request.find({ patient: req.user._id })
-      .populate('patient', 'firstName lastName personalPhoto')
-      .sort({ createdAt: -1 });
-    res.json({ data: requests });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
+// exports.recievedRequestsPatients = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'patient') {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     const requests = await Request.find({ patient: req.user._id })
+//       .populate('patient', 'firstName lastName personalPhoto')
+//       .sort({ createdAt: -1 });
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// exports.recievedRequestsNurses = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'nurse') {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     const requests = await Request.find({ patient: req.user._id })
+//       .populate('patient', 'firstName lastName personalPhoto')
+//       .sort({ createdAt: -1 });
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
 
 exports.getAllRequests = asyncHandler(async (req, res, next) => {
   const AllRequests = await Request.find();

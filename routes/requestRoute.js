@@ -11,14 +11,16 @@ const {
   recievedRequestsNurses,
   requestAction,
   sentNotifi,
+  recievedRequests,
 } = require('../services/requestServices');
 
 router.use(authService.protect);
 
 router.get('/sent', sentNotifi);
 // GET /api/v1/request/received
-router.get('/receivedPatients', recievedRequestsPatients);
-router.get('/receivedNurses', recievedRequestsNurses);
+// router.get('/receivedPatients', recievedRequestsPatients);
+// router.get('/receivedNurses', recievedRequestsNurses);
+router.get('/received', recievedRequests);
 
 // PATCH /api/v1/request/:id/accept or /reject
 router.put('/:id/:action', requestAction);
