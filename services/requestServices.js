@@ -56,10 +56,10 @@ exports.requestAction = async (req, res) => {
 };
 exports.recievedRequests = async (req, res) => {
   try {
-    if (req.user.role !== 'nurse') {
+    if (req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ nurse: req.user._id })
+    const requests = await Request.find({ patient: req.user._id })
       .populate('patient', 'firstName lastName personalPhoto')
       .sort({ createdAt: -1 });
     res.json({ data: requests });
@@ -67,6 +67,7 @@ exports.recievedRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 exports.getAllRequests = asyncHandler(async (req, res, next) => {
   const AllRequests = await Request.find();
 
