@@ -72,14 +72,46 @@ exports.requestAction = async (req, res) => {
 // 😂😂😁😀
 
 // For patients: show requests they've sent
+// exports.sentNotifi = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'patient') {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     const requests = await Request.find({ patient: req.user._id }).populate(
+//       'nurse'
+//     );
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// // For nurses: show requests they've received
+// exports.recievedRequests = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'nurse') {
+//       // <-- FIXED THIS LINE
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     const requests = await Request.find({ nurse: req.user._id }) // <-- FIXED THIS LINE
+//       .populate('patient', 'firstName lastName personalPhoto')
+//       .sort({ createdAt: -1 });
+//     res.json({ data: requests });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// 😁😁😀😀
+
 exports.sentNotifi = async (req, res) => {
   try {
     if (req.user.role !== 'patient') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ patient: req.user._id }).populate(
-      'nurse'
-    );
+    const requests = await Request.find({ patient: req.user._id })
+      .populate('nurse', 'firstName lastName personalPhoto')
+      .sort({ createdAt: -1 });
     res.json({ data: requests });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -90,10 +122,9 @@ exports.sentNotifi = async (req, res) => {
 exports.recievedRequests = async (req, res) => {
   try {
     if (req.user.role !== 'nurse') {
-      // <-- FIXED THIS LINE
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ nurse: req.user._id }) // <-- FIXED THIS LINE
+    const requests = await Request.find({ nurse: req.user._id })
       .populate('patient', 'firstName lastName personalPhoto')
       .sort({ createdAt: -1 });
     res.json({ data: requests });
