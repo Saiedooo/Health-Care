@@ -121,18 +121,25 @@ exports.sentNotifi = async (req, res) => {
 // For nurses: show requests they've received
 exports.recievedRequests = async (req, res) => {
   try {
-    if (req.user.role !== 'nurse') {
+    let requests;
+    if (req.user.role === 'nurse') {
+      // For nurses: show requests they've received
+      requests = await Request.find({ nurse: req.user._id })
+        .populate('patient', 'firstName lastName personalPhoto')
+        .sort({ createdAt: -1 });
+    } else if (req.user.role === 'patient') {
+      // For patients: show requests they've received (if any logic for that)
+      requests = await Request.find({ patient: req.user._id })
+        .populate('nurse', 'firstName lastName personalPhoto')
+        .sort({ createdAt: -1 });
+    } else {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const requests = await Request.find({ nurse: req.user._id })
-      .populate('patient', 'firstName lastName personalPhoto')
-      .sort({ createdAt: -1 });
     res.json({ data: requests });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
 // 😀😀😀
 
 // exports.recievedRequestsPatients = async (req, res) => {
