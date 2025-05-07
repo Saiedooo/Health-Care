@@ -80,7 +80,7 @@ const requestSchema = new mongoose.Schema(
 );
 
 // Update timestamps on save
-RequestSchema.pre('save', function (next) {
+requestSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
