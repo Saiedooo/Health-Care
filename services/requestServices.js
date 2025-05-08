@@ -4,6 +4,7 @@ const ApiError = require('../utils/apiError');
 const User = require('../models/userModel');
 
 const Request = require('../models/requestModel');
+const Notification = require('../models/notificationModel');
 
 // Only patients can see their sent requests
 // exports.sentNotifi = async (req, res) => {
@@ -50,6 +51,15 @@ exports.requestAction = async (req, res) => {
     }
 
     res.json({ message: 'Request updated', data: request });
+
+    // After approving/rejecting a request
+    await Notification.create({
+      user: patientId, // the patient who should receive the notification
+      message:
+        " تم ${action === 'Approved' ? 'قبول' : 'رفض'} طلبك من قبل الممرضة",
+      type: 'REQUEST',
+      relatedRequest: request._id,
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -232,6 +242,14 @@ exports.createRequest = async (req, res) => {
     }
 
     res.status(201).json(request);
+
+    // After creating a request
+    await Notification.create({
+      user: nurseId, // the nurse who should receive the notification
+      message: ' طلب جديد من المريض ${patientName}',
+      type: 'REQUEST',
+      relatedRequest: request._id,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -267,31 +285,31 @@ exports.createRequest = async (req, res) => {
 //   });
 // });
 
-exports.createRequest = asyncHandler(async (req, res, next) => {
-  // Get the logged-in user's ID (Patient)
-  const patientId = req.user._id;
+// exports.createRequest = asyncHandler(async (req, res, next) => {
+//   // Get the logged-in user's ID (Patient)
+//   const patientId = req.user._id;
 
-  // Get nurse and description from body
-  const { nurse, description } = req.body;
+//   // Get nurse and description from body
+//   const { nurse, description } = req.body;
 
-  // Validate nurse ID
-  if (!mongoose.Types.ObjectId.isValid(nurse)) {
-    return next(new ApiError('Invalid nurse ID', 400));
-  }
+//   // Validate nurse ID
+//   if (!mongoose.Types.ObjectId.isValid(nurse)) {
+//     return next(new ApiError('Invalid nurse ID', 400));
+//   }
 
-  // Create the request
-  const request = await Request.create({
-    patient: patientId,
-    nurse,
-    description,
-  });
+//   // Create the request
+//   const request = await Request.create({
+//     patient: patientId,
+//     nurse,
+//     description,
+//   });
 
-  // Send response
-  res.status(201).json({
-    status: 'success',
-    data: request,
-  });
-});
+//   // Send response
+//   res.status(201).json({
+//     status: 'success',
+//     data: request,
+//   });
+// });
 
 // @update Request Status
 
