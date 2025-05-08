@@ -16,7 +16,7 @@ const departmentRoute = require('./routes/DepartmentRoute');
 const specialtiesRoute = require('./routes/specialtiesRoute');
 const requestRoute = require('./routes/requestRoute');
 const reviewRoute = require('./routes/reviewRoute');
-
+const notificationRoute = require('./routes/notificationRoute');
 const { Server } = require('socket.io');
 
 dotenv.config({ path: '.env' });
@@ -97,6 +97,7 @@ app.use('/api/v1/department', departmentRoute);
 app.use('/api/v1/specialties', specialtiesRoute);
 app.use('/api/v1/request', requestRoute);
 app.use('/api/v1/reviews', reviewRoute);
+app.use('/api/v1', notificationRoute);
 // app.use('/api/v1/review', reviewRoute);
 
 // Db connection
