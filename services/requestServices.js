@@ -197,7 +197,7 @@ exports.createRequest = async (req, res) => {
 
     // إنشاء الطلب
     const request = await Request.create({
-      patient: req.User._id,
+      patient: req.user._id,
       description,
       nurse: nurseId || null,
     });
@@ -216,10 +216,10 @@ exports.createRequest = async (req, res) => {
           JSON.stringify({
             type: 'NEW_REQUEST',
             data: {
-              requestId: Request._id,
-              patientName: `${req.User.firstName} ${req.User.lastName}`,
-              description: Request.description,
-              createdAt: Request.createdAt,
+              requestId: request._id,
+              patientName: `${req.user.firstName} ${req.user.lastName}`,
+              description: request.description,
+              createdAt: request.createdAt,
             },
           })
         );
@@ -231,10 +231,10 @@ exports.createRequest = async (req, res) => {
           JSON.stringify({
             type: 'NEW_GENERAL_REQUEST',
             data: {
-              requestId: Request._id,
-              patientName: `${req.User.firstName} ${req.User.lastName}`,
-              description: Request.description,
-              createdAt: Request.createdAt,
+              requestId: request._id,
+              patientName: `${req.user.firstName} ${req.user.lastName}`,
+              description: request.description,
+              createdAt: request.createdAt,
             },
           })
         );
@@ -246,7 +246,7 @@ exports.createRequest = async (req, res) => {
     // After creating a request
     await Notification.create({
       user: nurseId, // the nurse who should receive the notification
-      message: ' طلب جديد من المريض ${patientName}',
+      message: `طلب جديد من المريض ${req.user.firstName} ${req.user.lastName}`,
       type: 'REQUEST',
       relatedRequest: request._id,
     });
