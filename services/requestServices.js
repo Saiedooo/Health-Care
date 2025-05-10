@@ -197,7 +197,7 @@ exports.createRequest = async (req, res) => {
 
     // إنشاء الطلب
     const request = await Request.create({
-      patient: req.User.id,
+      patient: req.User._id,
       description,
       nurse: nurseId || null,
     });
