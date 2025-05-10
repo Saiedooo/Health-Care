@@ -50,7 +50,7 @@ router.put('/notifications/:id/read', protect, async (req, res) => {
 router.post('/notifications/test', protect, async (req, res) => {
   try {
     const notif = await Notification.create({
-      user: req.user.id,
+      user: req.user._id,
       message: 'اختبار إشعار جديد',
       type: 'SYSTEM',
     });
