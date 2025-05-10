@@ -39,27 +39,31 @@ exports.requestAction = async (req, res) => {
     else return res.status(400).json({ message: 'Invalid action' });
     await request.save();
 
-    // Notify the patient if rejected
-    if (action === 'Rejected') {
-      const io = req.app.get('io');
-      if (io) {
-        io.to(request.patient._id.toString()).emit('request_rejected', {
-          requestId: request._id,
-          message: 'تم رفض طلبك من قبل الممرضة',
-        });
-      }
+    // Notify the patient for both actions
+    const io = req.app.get('io');
+    if (io) {
+      io.to(request.patient._id.toString()).emit('request_status_changed', {
+        requestId: request._id,
+        status: request.status,
+        message:
+          action === 'Approved'
+            ? 'تم قبول طلبك من قبل الممرضة'
+            : 'تم رفض طلبك من قبل الممرضة',
+      });
     }
 
-    res.json({ message: 'Request updated', data: request });
-
-    // After approving/rejecting a request
+    // (Optional) Save notification in DB
     await Notification.create({
-      user: patientId, // the patient who should receive the notification
+      user: request.patient._id,
       message:
-        " تم ${action === 'Approved' ? 'قبول' : 'رفض'} طلبك من قبل الممرضة",
+        action === 'Approved'
+          ? 'تم قبول طلبك من قبل الممرضة'
+          : 'تم رفض طلبك من قبل الممرضة',
       type: 'REQUEST',
       relatedRequest: request._id,
     });
+
+    res.json({ message: 'Request updated', data: request });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
