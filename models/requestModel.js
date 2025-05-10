@@ -62,7 +62,7 @@ const requestSchema = new mongoose.Schema(
     nurse: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
     },
     description: {
       type: String,
