@@ -199,50 +199,43 @@ exports.createRequest = async (req, res) => {
   try {
     const { description, nurseId } = req.body;
 
-    // إنشاء الطلب
+    // Ensure nurseId is provided
+    if (!nurseId) {
+      return res
+        .status(400)
+        .json({ error: 'nurseId is required to create a request.' });
+    }
+
+    // Validate nurseId
+    const nurse = await User.findById(nurseId);
+    if (!nurse || nurse.role !== 'nurse') {
+      return res.status(400).json({ error: 'Invalid nurse ID' });
+    }
+
+    // Create the request
     const request = await Request.create({
       patient: req.user._id,
       description,
-      nurse: nurseId || null,
+      nurse: nurseId,
     });
 
-    // إذا تم تحديد ممرض معين
-    if (nurseId) {
-      const nurse = await User.findById(nurseId);
-      if (!nurse || nurse.role !== 'nurse') {
-        return res.status(400).json({ error: 'Invalid nurse ID' });
-      }
-
-      // إرسال إشعار للممرض المحدد
-      if (req.app.locals.activeNurses.has(nurseId)) {
-        const ws = req.app.locals.activeNurses.get(nurseId);
-        ws.send(
-          JSON.stringify({
-            type: 'NEW_REQUEST',
-            data: {
-              requestId: request._id,
-              patientName: `${req.user.firstName} ${req.user.lastName}`,
-              description: request.description,
-              createdAt: request.createdAt,
-            },
-          })
-        );
-      }
-    } else {
-      // إرسال إشعار لجميع الممرضين (إذا لم يتم تحديد ممرض معين)
-      req.app.locals.activeNurses.forEach((ws, id) => {
-        ws.send(
-          JSON.stringify({
-            type: 'NEW_GENERAL_REQUEST',
-            data: {
-              requestId: request._id,
-              patientName: `${req.user.firstName} ${req.user.lastName}`,
-              description: request.description,
-              createdAt: request.createdAt,
-            },
-          })
-        );
-      });
+    // إرسال إشعار للممرض المحدد
+    if (
+      req.app.locals.activeNurses &&
+      req.app.locals.activeNurses.has(nurseId)
+    ) {
+      const ws = req.app.locals.activeNurses.get(nurseId);
+      ws.send(
+        JSON.stringify({
+          type: 'NEW_REQUEST',
+          data: {
+            requestId: request._id,
+            patientName: `${req.user.firstName} ${req.user.lastName}`,
+            description: request.description,
+            createdAt: request.createdAt,
+          },
+        })
+      );
     }
 
     res.status(201).json(request);
