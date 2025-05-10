@@ -27,7 +27,10 @@ const { protect } = require('../services/authServices');
 // Get all notifications for the logged-in user
 router.get('/notifications', protect, async (req, res) => {
   try {
-    const notifications = await Notification.find({ user: req.user.id }).sort(
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized: No user found' });
+    }
+    const notifications = await Notification.find({ user: req.user._id }).sort(
       '-createdAt'
     );
     res.json({ notifications });
