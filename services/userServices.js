@@ -353,11 +353,13 @@ exports.getNurseById = asyncHandler(async (req, res, next) => {
   const nurse = await User.findOne({
     _id: req.params.id,
     role: 'nurse',
-  }).select('-password');
+  })
+    .select('-password')
+    .populate('specialty'); // <-- This line populates the specialty field
 
   if (!nurse) {
     return next(
-      new ApiError(`No nurse found with ID ${req.params.nurseId}`, 404)
+      new ApiError(`No nurse found with ID ${req.params.id}`, 404)
     );
   }
 
