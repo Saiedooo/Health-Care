@@ -11,6 +11,7 @@ const ApiError = require('../utils/apiError');
 const ApiFeatures = require('../utils/apiFeature');
 const Department = require('../models/departmentModel');
 const specialties = require('../models/specialtyModel');
+const apiFeatures = require('../utils/apiFeature');
 const User = require('../models/userModel');
 
 // console.log(uuidv4());
@@ -108,15 +109,21 @@ const User = require('../models/userModel');
 
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build query
-    const filter = {
+    // 1. Build the base query with role and active status
+    const baseFilter = {
       role: 'nurse',
       isActive: true,
-      ...(req.query.specialty && { specialty: req.query.specialty }),
     };
 
-    // 2. Execute query
-    const nurses = await User.find(filter)
+    // 2. Create API features instance for filtering, pagination, etc.
+    const features = new ApiFeatures(User.find(baseFilter), req.query)
+      .filter()
+      .search()
+      .limitFields()
+      .sort();
+
+    // 3. Execute query for paginated results
+    const nurses = await features.query
       .select(
         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
       )
@@ -126,15 +133,33 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       })
       .lean();
 
-    // 3. Handle response
+    // 4. Get total count for pagination (with same filters but without pagination)
+    const totalCount = await User.countDocuments(baseFilter);
+
+    // 5. Apply pagination
+    features.paginate(totalCount);
+
+    // 6. Handle empty results
+    if (!nurses.length) {
+      return res.status(200).json({
+        status: 'success',
+        results: 0,
+        data: [],
+        pagination: features.paginationResults,
+      });
+    }
+
+    // 7. Send response with pagination
     res.status(200).json({
       status: 'success',
       results: nurses.length,
+      total: totalCount,
       data: nurses,
+      pagination: features.paginationResults,
     });
   } catch (error) {
     console.error('Error fetching nurses:', error);
-    throw new ApiError('Failed to fetch nurses', 500);
+    next(new ApiError('Failed to fetch nurses', 500));
   }
 });
 
@@ -358,9 +383,7 @@ exports.getNurseById = asyncHandler(async (req, res, next) => {
     .populate('specialty'); // <-- This line populates the specialty field
 
   if (!nurse) {
-    return next(
-      new ApiError(`No nurse found with ID ${req.params.id}`, 404)
-    );
+    return next(new ApiError(`No nurse found with ID ${req.params.id}`, 404));
   }
 
   res.status(200).json({

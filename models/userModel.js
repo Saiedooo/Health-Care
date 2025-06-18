@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['male', 'female'],
     },
+    age: {
+      type: Number,
+      required: [true, 'age required'],
+    },
     phoneNumber: String, //phone
     personalPhoto: String, // proFileImg
     password: {
