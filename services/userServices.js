@@ -122,8 +122,14 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       .limitFields()
       .sort();
 
-    // 3. Execute query for paginated results
-    const nurses = await features.query
+    // 3. Get total count for pagination (with same filters but without pagination)
+    const totalCount = await User.countDocuments(baseFilter);
+
+    // 4. Apply pagination BEFORE executing the query
+    features.paginate(totalCount);
+
+    // 5. Execute query for paginated results (use mongooseQuery, not query)
+    const nurses = await features.mongooseQuery
       .select(
         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
       )
@@ -132,12 +138,6 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
         select: 'name description',
       })
       .lean();
-
-    // 4. Get total count for pagination (with same filters but without pagination)
-    const totalCount = await User.countDocuments(baseFilter);
-
-    // 5. Apply pagination
-    features.paginate(totalCount);
 
     // 6. Handle empty results
     if (!nurses.length) {
@@ -158,8 +158,11 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       pagination: features.paginationResults,
     });
   } catch (error) {
+    // Log and return the real error for debugging
     console.error('Error fetching nurses:', error);
-    next(new ApiError('Failed to fetch nurses', 500));
+    return res
+      .status(500)
+      .json({ status: 'error', message: error.message, stack: error.stack });
   }
 });
 
