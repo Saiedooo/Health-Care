@@ -109,40 +109,56 @@ const User = require('../models/userModel');
 
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build query with optional filters
+    // 1. Build the base filter object
     const filter = {
       role: 'nurse',
       isActive: true,
-      ...(req.query.specialty && { specialty: req.query.specialty }),
-      ...(req.query.gender && { gender: req.query.gender }),
-      ...(req.query.address && {
-        address: { $regex: req.query.address, $options: 'i' },
-      }),
-      ...(req.query.age && { age: Number(req.query.age) }),
     };
 
-    // 2. Pagination setup
+    // 2. Add optional filters from the query string
+    if (req.query.gender) {
+      filter.gender = req.query.gender;
+    }
+    if (req.query.address) {
+      filter.address = { $regex: req.query.address, $options: 'i' };
+    }
+    if (req.query.age) {
+      filter.age = Number(req.query.age);
+    }
+
+    // 3. Handle the specialty filter for multiple values
+    if (req.query.specialty && req.query.specialty.trim() !== '') {
+      // The frontend sends specialties as a comma-separated string of IDs
+      const specialtyIds = req.query.specialty.split(',');
+
+      // Use the $in operator to find nurses matching any of the provided specialties.
+      // This change assumes your User model schema has a field named `specialties` (plural)
+      // which is an array of references (ObjectIDs) to your Specialty model.
+      filter.specialties = { $in: specialtyIds };
+    }
+
+    // 4. Pagination setup
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 6;
     const skip = (page - 1) * limit;
 
-    // 3. Get total count for pagination
+    // 5. Get total count for pagination
     const totalCount = await User.countDocuments(filter);
 
-    // 4. Execute query with pagination
+    // 6. Execute the query with pagination and population
     const nurses = await User.find(filter)
       .select(
         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
       )
       .populate({
-        path: 'specialty',
+        path: 'specialties', // Make sure this path is 'specialties' (plural) to match the schema
         select: 'name description',
       })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    // 5. Send response with pagination info
+    // 7. Send the response
     res.status(200).json({
       status: 'success',
       results: nurses.length,
@@ -153,10 +169,10 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error fetching nurses:', error);
+    // Ensure you have a proper error handling middleware that uses your ApiError
     throw new ApiError('Failed to fetch nurses', 500);
   }
 });
-
 exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
     const { specialtyId } = req.params;
