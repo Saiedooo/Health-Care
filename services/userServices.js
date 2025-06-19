@@ -107,8 +107,74 @@ const User = require('../models/userModel');
 
 // controllers/nurseController.js
 
+// exports.getAllNurses = asyncHandler(async (req, res, next) => {
+//   try {
+//     // 1. Build the base query with role and active status
+//     const baseFilter = {
+//       role: 'nurse',
+//       isActive: true,
+//     };
+
+//     // 2. Create API features instance for filtering, pagination, etc.
+//     const features = new ApiFeatures(User.find(baseFilter), req.query)
+//       .filter()
+//       .search()
+//       .limitFields()
+//       .sort();
+
+//     // 3. Get total count for pagination (with same filters but without pagination)
+//     const totalCount = await User.countDocuments(baseFilter);
+
+//     // 4. Apply pagination BEFORE executing the query
+//     features.paginate(totalCount);
+
+//     // 5. Execute query for paginated results (use mongooseQuery, not query)
+//     const nurses = await features.mongooseQuery
+//       .select(
+//         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
+//       )
+//       .populate({
+//         path: 'specialty',
+//         select: 'name description',
+//       })
+//       .lean();
+
+//     // 6. Handle empty results
+//     if (!nurses.length) {
+//       return res.status(200).json({
+//         status: 'success',
+//         results: 0,
+//         data: [],
+//         pagination: features.paginationResults,
+//       });
+//     }
+
+//     // 7. Send response with pagination
+//     res.status(200).json({
+//       status: 'success',
+//       results: nurses.length,
+//       total: totalCount,
+//       data: nurses,
+//       pagination: features.paginationResults,
+//     });
+//   } catch (error) {
+//     // Log and return the real error for debugging
+//     console.error('Error fetching nurses:', error);
+//     return res
+//       .status(500)
+//       .json({ status: 'error', message: error.message, stack: error.stack });
+//   }
+// });
+
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
+    const newNurse = new User({
+      ...req.body,
+      role: 'nurse',
+      isActive: true, // <-- ensure this is set
+    });
+    await newNurse.save();
+
     // 1. Build the base query with role and active status
     const baseFilter = {
       role: 'nurse',
@@ -128,7 +194,15 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
     // 4. Apply pagination BEFORE executing the query
     features.paginate(totalCount);
 
-    // 5. Execute query for paginated results (use mongooseQuery, not query)
+    // 5. Always add _id as a tiebreaker for stable sort
+    if (
+      !features.mongooseQuery.options.sort ||
+      !('_id' in features.mongooseQuery.options.sort)
+    ) {
+      features.mongooseQuery = features.mongooseQuery.sort({ _id: 1 });
+    }
+
+    // 6. Execute query for paginated results (use mongooseQuery, not query)
     const nurses = await features.mongooseQuery
       .select(
         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
@@ -139,7 +213,7 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       })
       .lean();
 
-    // 6. Handle empty results
+    // 7. Handle empty results
     if (!nurses.length) {
       return res.status(200).json({
         status: 'success',
@@ -149,7 +223,7 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
       });
     }
 
-    // 7. Send response with pagination
+    // 8. Send response with pagination
     res.status(200).json({
       status: 'success',
       results: nurses.length,
