@@ -109,14 +109,27 @@ const User = require('../models/userModel');
 
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build query
+    // 1. Build query with optional filters
     const filter = {
       role: 'nurse',
       isActive: true,
       ...(req.query.specialty && { specialty: req.query.specialty }),
+      ...(req.query.gender && { gender: req.query.gender }),
+      ...(req.query.address && {
+        address: { $regex: req.query.address, $options: 'i' },
+      }),
+      ...(req.query.age && { age: Number(req.query.age) }),
     };
 
-    // 2. Execute query
+    // 2. Pagination setup
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 6;
+    const skip = (page - 1) * limit;
+
+    // 3. Get total count for pagination
+    const totalCount = await User.countDocuments(filter);
+
+    // 4. Execute query with pagination
     const nurses = await User.find(filter)
       .select(
         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
@@ -125,12 +138,17 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
         path: 'specialty',
         select: 'name description',
       })
+      .skip(skip)
+      .limit(limit)
       .lean();
 
-    // 3. Handle response
+    // 5. Send response with pagination info
     res.status(200).json({
       status: 'success',
       results: nurses.length,
+      total: totalCount,
+      currentPage: page,
+      numberOfPages: Math.ceil(totalCount / limit),
       data: nurses,
     });
   } catch (error) {
