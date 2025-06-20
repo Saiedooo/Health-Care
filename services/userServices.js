@@ -107,58 +107,109 @@ const User = require('../models/userModel');
 
 // controllers/nurseController.js
 
+// exports.getAllNurses = asyncHandler(async (req, res, next) => {
+//   try {
+//     // 1. Build the base filter object
+//     const filter = {
+//       role: 'nurse',
+//       isActive: true,
+//     };
+
+//     // 2. Add optional filters from the query string
+//     if (req.query.gender) {
+//       filter.gender = req.query.gender;
+//     }
+//     if (req.query.address) {
+//       filter.address = { $regex: req.query.address, $options: 'i' };
+//     }
+//     if (req.query.age) {
+//       filter.age = Number(req.query.age);
+//     }
+
+//     // 3. Handle the specialty filter for multiple values
+//     if (req.query.specialty && req.query.specialty.trim() !== '') {
+//       // The frontend sends specialties as a comma-separated string of IDs
+//       const specialtyIds = req.query.specialty.split(',');
+
+//       // Use the $in operator to find nurses matching any of the provided specialties.
+//       // This change assumes your User model schema has a field named `specialties` (plural)
+//       // which is an array of references (ObjectIDs) to your Specialty model.
+//       filter.specialties = { $in: specialtyIds };
+//     }
+
+//     // 4. Pagination setup
+//     const page = parseInt(req.query.page, 10) || 1;
+//     const limit = parseInt(req.query.limit, 10) || 6;
+//     const skip = (page - 1) * limit;
+
+//     // 5. Get total count for pagination
+//     const totalCount = await User.countDocuments(filter);
+
+//     // 6. Execute the query with pagination and population
+//     const nurses = await User.find(filter)
+//       .select(
+//         '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
+//       )
+//       .populate({
+//         path: 'specialties', // Make sure this path is 'specialties' (plural) to match the schema
+//         select: 'name description',
+//       })
+//       .skip(skip)
+//       .limit(limit)
+//       .lean();
+
+//     // 7. Send the response
+//     res.status(200).json({
+//       status: 'success',
+//       results: nurses.length,
+//       total: totalCount,
+//       currentPage: page,
+//       numberOfPages: Math.ceil(totalCount / limit),
+//       data: nurses,
+//     });
+//   } catch (error) {
+//     console.error('Error fetching nurses:', error);
+//     // Ensure you have a proper error handling middleware that uses your ApiError
+//     throw new ApiError('Failed to fetch nurses', 500);
+//   }
+// });
+
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build the base filter object
     const filter = {
       role: 'nurse',
       isActive: true,
     };
 
-    // 2. Add optional filters from the query string
     if (req.query.gender) {
       filter.gender = req.query.gender;
     }
     if (req.query.address) {
       filter.address = { $regex: req.query.address, $options: 'i' };
     }
-    if (req.query.age) {
-      filter.age = Number(req.query.age);
-    }
 
-    // 3. Handle the specialty filter for multiple values
+    // This part now matches your updated schema
     if (req.query.specialty && req.query.specialty.trim() !== '') {
-      // The frontend sends specialties as a comma-separated string of IDs
       const specialtyIds = req.query.specialty.split(',');
-
-      // Use the $in operator to find nurses matching any of the provided specialties.
-      // This change assumes your User model schema has a field named `specialties` (plural)
-      // which is an array of references (ObjectIDs) to your Specialty model.
-      filter.specialties = { $in: specialtyIds };
+      filter.specialties = { $in: specialtyIds }; // Queries the 'specialties' array
     }
 
-    // 4. Pagination setup
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 6;
     const skip = (page - 1) * limit;
 
-    // 5. Get total count for pagination
     const totalCount = await User.countDocuments(filter);
 
-    // 6. Execute the query with pagination and population
     const nurses = await User.find(filter)
-      .select(
-        '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
-      )
+      .select('-password -passwordResetCode -passwordResetExpires -passwordChangedAt')
       .populate({
-        path: 'specialties', // Make sure this path is 'specialties' (plural) to match the schema
+        path: 'specialties', // Populates the 'specialties' array
         select: 'name description',
       })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    // 7. Send the response
     res.status(200).json({
       status: 'success',
       results: nurses.length,
@@ -169,10 +220,14 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error fetching nurses:', error);
-    // Ensure you have a proper error handling middleware that uses your ApiError
     throw new ApiError('Failed to fetch nurses', 500);
   }
 });
+
+
+
+
+
 exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
     const { specialtyId } = req.params;
