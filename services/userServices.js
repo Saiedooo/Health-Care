@@ -173,43 +173,42 @@ const User = require('../models/userModel');
 //     throw new ApiError('Failed to fetch nurses', 500);
 //   }
 // });
-
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
+    // 1. Build query with optional filters
     const filter = {
       role: 'nurse',
       isActive: true,
+      ...(req.query.specialty && { specialty: req.query.specialty }),
+      ...(req.query.gender && { gender: req.query.gender }),
+      ...(req.query.address && {
+        address: { $regex: req.query.address, $options: 'i' },
+      }),
+      ...(req.query.age && { age: Number(req.query.age) }),
     };
 
-    if (req.query.gender) {
-      filter.gender = req.query.gender;
-    }
-    if (req.query.address) {
-      filter.address = { $regex: req.query.address, $options: 'i' };
-    }
-
-    // This part now matches your updated schema
-    if (req.query.specialty && req.query.specialty.trim() !== '') {
-      const specialtyIds = req.query.specialty.split(',');
-      filter.specialties = { $in: specialtyIds }; // Queries the 'specialties' array
-    }
-
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 6;
+    // 2. Pagination setup
+    const page = parseInt(req.query.page, 10)  1;
+    const limit = parseInt(req.query.limit, 10)  6;
     const skip = (page - 1) * limit;
 
+    // 3. Get total count for pagination
     const totalCount = await User.countDocuments(filter);
 
+    // 4. Execute query with pagination
     const nurses = await User.find(filter)
-      .select('-password -passwordResetCode -passwordResetExpires -passwordChangedAt')
+      .select(
+        '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
+      )
       .populate({
-        path: 'specialties', // Populates the 'specialties' array
+        path: 'specialty',
         select: 'name description',
       })
       .skip(skip)
       .limit(limit)
       .lean();
 
+    // 5. Send response with pagination info
     res.status(200).json({
       status: 'success',
       results: nurses.length,
@@ -223,11 +222,6 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
     throw new ApiError('Failed to fetch nurses', 500);
   }
 });
-
-
-
-
-
 exports.getNursesBySpecialty = asyncHandler(async (req, res, next) => {
   try {
     const { specialtyId } = req.params;
