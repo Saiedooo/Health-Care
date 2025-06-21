@@ -183,8 +183,8 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
     };
 
     // 2. Pagination setup
-    const page = parseInt(req.query.page, 10)  1;
-    const limit = parseInt(req.query.limit, 10)  6;
+    const page = parseInt(req.query.page, 10);
+    const limit = parseInt(req.query.limit, 10);
     const skip = (page - 1) * limit;
 
     // 3. Get total count for pagination
@@ -192,7 +192,9 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
 
     // 4. Execute query with pagination
     const nurses = await User.find(filter)
-      .select('-password -passwordResetCode -passwordResetExpires -passwordChangedAt')
+      .select(
+        '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
+      )
       .populate({
         path: 'specialty',
         select: 'name description',
