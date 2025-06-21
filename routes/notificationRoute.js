@@ -67,6 +67,29 @@ const { protect } = require('../services/authServices');
 
 // -----------------------------------------------------
 
+// // Get all notifications for the logged-in user
+// router.get('/notifications', protect, async (req, res) => {
+//   try {
+//     if (!req.user) {
+//       return res.status(401).json({ message: 'Unauthorized: No user found' });
+//     }
+
+//     // FIX 1: Populate sender's data to fix 'undefined undefined' on the frontend.
+//     // This adds the sender's name and photo to each notification object.
+//     // It assumes your Notification schema has a field named 'sender' that references the 'User' model.
+//     // If your field is named differently (e.g., 'fromUser'), please change 'sender' below.
+//     const notifications = await Notification.find({ recipient: req.user._id })
+//       .populate('sender', 'firstName lastName personalPhoto')
+//       .sort({ createdAt: -1 });
+
+//     res.status(200).json({ notifications });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// });
+
+// In your notification routes file (e.g., notificationRoutes.js)
+
 // Get all notifications for the logged-in user
 router.get('/notifications', protect, async (req, res) => {
   try {
@@ -74,19 +97,31 @@ router.get('/notifications', protect, async (req, res) => {
       return res.status(401).json({ message: 'Unauthorized: No user found' });
     }
 
-    // FIX 1: Populate sender's data to fix 'undefined undefined' on the frontend.
-    // This adds the sender's name and photo to each notification object.
-    // It assumes your Notification schema has a field named 'sender' that references the 'User' model.
-    // If your field is named differently (e.g., 'fromUser'), please change 'sender' below.
-    const notifications = await Notification.find({ recipient: req.user._id })
-      .populate('sender', 'firstName lastName personalPhoto')
-      .sort({ createdAt: -1 });
+    // --- CORRECTION ---
+    // The query below now correctly uses the `user` field to find notifications
+    // for the logged-in user, as it was in your original code.
+    //
+    // It also populates the sender's details to prevent the "undefined undefined"
+    // error on your main notifications page.
+    //
+    // **IMPORTANT**: Please make sure your Notification schema has a field named `sender` that
+    // references the 'User' model. If that field is named something else (like 'fromUser' or 'nurseId'),
+    // you must replace 'sender' in the `.populate()` line below with the correct name from your schema.
 
+    const notifications = await Notification.find({ user: req.user._id })
+      .populate('sender', 'firstName lastName personalPhoto') // This line adds sender info
+      .sort({ createdAt: -1 }); // Sorts newest first
+
+    // Send the notifications back to the frontend
     res.status(200).json({ notifications });
   } catch (err) {
+    // Log the error on the server for easier debugging
+    console.error('Error fetching notifications:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+// The rest of your routes, like PATCH for marking as read, should remain the same.
 
 // FIX 2: This route now matches the frontend's API call.
 // It listens for a PATCH request to /notifications/:id to mark it as read.
