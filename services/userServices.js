@@ -194,7 +194,7 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
 
     // 3. Get total count for pagination
     const totalCount = await User.countDocuments(filter);
-
+    //
     // 4. Execute query with pagination
     let query = User.find(filter)
       .select(
