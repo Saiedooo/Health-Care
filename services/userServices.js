@@ -175,46 +175,31 @@ const User = require('../models/userModel');
 // });
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   try {
-    // 1. Build query with optional filters
+    // 1. Build query
     const filter = {
       role: 'nurse',
       isActive: true,
       ...(req.query.specialty && { specialty: req.query.specialty }),
-      ...(req.query.gender && { gender: req.query.gender }),
-      ...(req.query.address && {
-        address: { $regex: req.query.address, $options: 'i' },
-      }),
-      ...(req.query.age && { age: Number(req.query.age) }),
     };
 
     // 2. Pagination setup
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 6;
+    const page = parseInt(req.query.page, 10)  1;
+    const limit = parseInt(req.query.limit, 10)  6;
     const skip = (page - 1) * limit;
 
     // 3. Get total count for pagination
     const totalCount = await User.countDocuments(filter);
 
     // 4. Execute query with pagination
-    let query = User.find(filter)
-      .select(
-        '-password -passwordResetCode -passwordResetExpires -passwordChangedAt'
-      )
+    const nurses = await User.find(filter)
+      .select('-password -passwordResetCode -passwordResetExpires -passwordChangedAt')
+      .populate({
+        path: 'specialty',
+        select: 'name description',
+      })
       .skip(skip)
       .limit(limit)
       .lean();
-
-    if (req.query.populate) {
-      const fieldsToPopulate = req.query.populate.split(',').join(' ');
-      query = query.populate(fieldsToPopulate);
-    } else {
-      query = query.populate({
-        path: 'specialty',
-        select: 'name description',
-      });
-    }
-
-    const nurses = await query;
 
     // 5. Send response with pagination info
     res.status(200).json({
