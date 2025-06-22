@@ -329,7 +329,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   user.passwordResetVerified = false;
 
-  await user.save();
+  await user.save({ validateBeforeSave: false });
 
   // 3) Send the reset code via email
   const message = `Hi ${
@@ -346,7 +346,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     user.passwordResetExpires = undefined;
     user.passwordResetVerified = undefined;
 
-    await user.save();
+    await user.save({ validateBeforeSave: false });
     return next(new ApiError('There is an error in sending email', 500));
   }
 
@@ -373,7 +373,7 @@ exports.verifyPasswordResetCode = asyncHandler(async (req, res, next) => {
   }
   // send response
   user.passwordResetVerified = true;
-  await user.save();
+  await user.save({ validateBeforeSave: false });
   res.status(200).json({
     status: 'Succes',
   });
@@ -399,7 +399,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   user.passwordResetVerified = undefined;
 
-  await user.save();
+  await user.save({ validateBeforeSave: false });
 
   // 3) should generate new token
   const token = createToken(user._id);
