@@ -339,14 +339,14 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     </div>
     <div style="padding: 20px;">
       <h2>Password Reset Request</h2>
-      <p>Hi ${user.firstName} ${user.lastName},</p>
-      <p>We received a request to reset the password for your Nurse Care account. Use the code below to complete the process:</p>
+      <p> style="font-size: 18px; Hi ${user.firstName} ${user.lastName},</p>
+      <p> style="font-size: 18px; We received a request to reset the password for your Nurse Care account. Use the code below to complete the process:</p>
       <p style="font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 2px;">${resetCode}</p>
-      <p>If you did not request a password reset, please ignore this email. This code will expire in 10 minutes.</p>
-      <p>Thanks for helping us keep your account secure.</p>
-      <p>Sincerely,<br>The Nurse Care Team</p>
+      <p>style="font-size: 18px; If you did not request a password reset, please ignore this email. This code will expire in 10 minutes.</p>
+      <p>style="font-size: 18px; Thanks for helping us keep your account secure.</p>
+      <p>style="font-size: 18px; <br>The Nurse Care Team</p>
     </div>
-    <div style="text-align: center; padding: 10px; font-size: 12px; color: #777; background-color: #f8f8f8;">
+    <div style="text-align: center; padding: 10px; font-size: 15px; color: #777; background-color: #f8f8f8;">
       <p>&copy; Nurse Care. All rights reserved.</p>
     </div>
   </div>
