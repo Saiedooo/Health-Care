@@ -332,7 +332,25 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // 3) Send the reset code via email
-  const message = `Hi ${user.firstName} ${user.lastName},\n We received a request to reset the password on Nurse Care Site. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n Nurse Care Team`;
+  const message = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <div style="text-align: center; padding: 20px; background-color: #f8f8f8;">
+      <img src="https://imgs.search.brave.com/3TnUO9ZctY1iDFo9xGRbGODzSap1Axe3tMGAzVc6MNU/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAzLzcxLzU1LzQx/LzM2MF9GXzM3MTU1/NDE3MV9wcjlCWnBV/c3BWZTdmQ1g5aVlE/NDRYVnBLbVpqTk93/Mi5qcGc" alt="Nurse Care Logo" style="width: 150px;">
+    </div>
+    <div style="padding: 20px;">
+      <h2>Password Reset Request</h2>
+      <p>Hi ${user.firstName} ${user.lastName},</p>
+      <p>We received a request to reset the password for your Nurse Care account. Use the code below to complete the process:</p>
+      <p style="font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 2px;">${resetCode}</p>
+      <p>If you did not request a password reset, please ignore this email. This code will expire in 10 minutes.</p>
+      <p>Thanks for helping us keep your account secure.</p>
+      <p>Sincerely,<br>The Nurse Care Team</p>
+    </div>
+    <div style="text-align: center; padding: 10px; font-size: 12px; color: #777; background-color: #f8f8f8;">
+      <p>&copy; Nurse Care. All rights reserved.</p>
+    </div>
+  </div>
+`;
   try {
     await sendEmail({
       email: user.email,
