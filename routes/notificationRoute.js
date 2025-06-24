@@ -97,20 +97,9 @@ router.get('/notifications', protect, async (req, res) => {
       return res.status(401).json({ message: 'Unauthorized: No user found' });
     }
 
-    // --- CORRECTION ---
-    // The query below now correctly uses the `user` field to find notifications
-    // for the logged-in user, as it was in your original code.
-    //
-    // It also populates the sender's details to prevent the "undefined undefined"
-    // error on your main notifications page.
-    //
-    // **IMPORTANT**: Please make sure your Notification schema has a field named `sender` that
-    // references the 'User' model. If that field is named something else (like 'fromUser' or 'nurseId'),
-    // you must replace 'sender' in the `.populate()` line below with the correct name from your schema.
-
-    const notifications = await Notification.find({ user: req.user._id })
-      .populate('sender', 'firstName lastName personalPhoto') // This line adds sender info
-      .sort({ createdAt: -1 }); // Sorts newest first
+    const notifications = await Notification.find({ recipient: req.user._id })
+      .populate('sender', 'firstName lastName personalPhoto')
+      .sort({ createdAt: -1 });
 
     // Send the notifications back to the frontend
     res.status(200).json({ notifications });
@@ -121,11 +110,6 @@ router.get('/notifications', protect, async (req, res) => {
   }
 });
 
-// The rest of your routes, like PATCH for marking as read, should remain the same.
-
-// FIX 2: This route now matches the frontend's API call.
-// It listens for a PATCH request to /notifications/:id to mark it as read.
-// The previous route (PUT /notifications/:id/read) was causing the 404 error.
 router.patch('/notifications/:id', protect, async (req, res) => {
   try {
     const notification = await Notification.findOneAndUpdate(
@@ -146,7 +130,6 @@ router.patch('/notifications/:id', protect, async (req, res) => {
   }
 });
 
-// (Optional) Create a test notification for the logged-in user
 router.post('/notifications/test', protect, async (req, res) => {
   try {
     // A test notification needs a recipient and a sender
