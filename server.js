@@ -68,20 +68,22 @@ io.on('connection', (socket) => {
 
 //middlewares
 app.use(express.json());
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === 'development'
-        ? 'http://localhost:5122/'
-        : process.env.FRONTEND_URL ||
-          'https://your-vercel-frontend-url.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin:
+//       process.env.NODE_ENV === 'development'
+//         ? 'http://localhost:5122/'
+//         : process.env.FRONTEND_URL ||
+//           'https://your-vercel-frontend-url.vercel.app',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true,
+//   })
+// );
 
-app.options('*', cors()); // Handle preflight requests for all routes
+// app.options('*', cors()); // Handle preflight requests for all routes
+
+app.use(cors());
 
 // Development Mode
 if (process.env.NODE_ENV === 'development') {
