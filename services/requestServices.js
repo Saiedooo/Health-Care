@@ -52,9 +52,10 @@ exports.requestAction = async (req, res) => {
       });
     }
 
-    // (Optional) Save notification in DB
+    // Save notification in DB with correct fields
     await Notification.create({
-      user: request.patient._id,
+      recipient: request.patient._id, // patient receives notification
+      sender: req.user._id, // nurse is the sender
       message:
         action === 'Approved'
           ? 'تم قبول طلبك من قبل الممرضة'
@@ -240,9 +241,10 @@ exports.createRequest = async (req, res) => {
 
     res.status(201).json(request);
 
-    // After creating a request
+    // Save notification for nurse with correct fields
     await Notification.create({
-      user: nurseId, // the nurse who should receive the notification
+      recipient: nurseId, // nurse receives notification
+      sender: req.user._id, // patient is the sender
       message: `طلب جديد من المريض ${req.user.firstName} ${req.user.lastName}`,
       type: 'REQUEST',
       relatedRequest: request._id,
